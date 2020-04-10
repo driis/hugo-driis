@@ -1,3 +1,3 @@
-[submodule "themes/meme"]
+[submodule "driis.dk/themes/meme"]
 	path = driis.dk/themes/meme
 	url = https://github.com/reuixiy/hugo-theme-meme.git
