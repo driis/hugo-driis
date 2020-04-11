@@ -1,3 +1,6 @@
 [submodule "driis.dk/themes/meme"]
 	path = driis.dk/themes/meme
 	url = https://github.com/reuixiy/hugo-theme-meme.git
+[submodule "driis.dk/themes/hugo-coder"]
+	path = driis.dk/themes/hugo-coder
+	url = https://github.com/luizdepra/hugo-coder.git
