@@ -1,0 +1,21 @@
+﻿+++draft = false
+date = 2008-10-26T20:21:00.0000000Z
+title = "A Stopwatch for Windows Mobile"
+slug = "A-Stopwatch-for-Windows-Mobile"
++++
+
+		<p>I have got a new mobile phone, a <a href="http://www.htc.com/europe/product/touchdiamond/overview.html">HTC Touch Diamond</a>. Besides the fact that it has a sleek design and is much easier to work with when reading email and browsing the web than my old phone.</p>
+    <p>However, that it is not the only reason for buying the Diamond. Another, very important reason, is that it runs Windows Mobile 6.1 - and therefore I can write my own programs for it using pretty much the same toolset as I use for any other .NET program. Granted, there are stuff missing in the Compact Framework compared to the full-blown framework (Expression trees anyone ?), but it is normally quite easy to find alternatives, and the Compact Framework does make it quite easy to program the device.</p>
+    <p>My first application for the Touch is a simple Stopwatch program. I wrote it, because there was no stopwatch and/or timer program on the Touch when I got it, so why not write my own ;-) The application it is quite simple, but I learned quite a deal about the device and the Compact Framework while developing it. It essentially relies on the <a href="http://msdn.microsoft.com/en-us/library/system.environment.tickcount.aspx">Environment.TickCount </a>counter to measure time, so it might not be 100% accurate - but for my needs (such as heating pizza's), it is quite sufficient.</p>
+    <p>If anyone's interested, <a href="~/media/772D64F4CBFA4174B500F6807CA9353E.ashx">you may download the source from here</a>. If you want to compile it, you will need a copy of the <a href="http://www.opennetcf.com/">OpenNET CF Framework</a>, because I needed to use some parts of it for making the phone vibrate when the alarm goes off. (It could be replaced with some P/Invoke calls, but i got lazy ;-) </p>
+    <p>The application itself has the following features:</p>
+    <p>
+    </p>
+    <ul>
+      <li>Simple stopwatch</li>
+      <li>Timer with alert (vibration and sound)</li>
+      <li>Configurable alarm sound (only .wav files, sorry).</li>
+      <li>Settings are remembered (stored in Application Data)</li>
+      <p>
+      </p>
+    </ul>

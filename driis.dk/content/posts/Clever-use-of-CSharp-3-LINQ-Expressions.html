@@ -1,0 +1,10 @@
+﻿+++draft = false
+date = 2008-06-11T19:09:16.0000000Z
+title = "Clever use of C# 3.0 LINQ Expressions"
+slug = "Clever-use-of-CSharp-3-LINQ-Expressions"
++++
+
+		<p>
+				<a href="http://themechanicalbride.blogspot.com/">Jafar Husain</a> shows us a quite clever way to <a href="http://themechanicalbride.blogspot.com/2007/03/symbols-on-steroids-in-c.html" target="_blank">use a C# 3.0 LINQ expression to get a symbol name</a>. I think this is a really good idea to use in cases when you need the name of a symbol as a string, since it avoids using hard-coded strings and gives us the option to use automatic refactorings without breaking stuff. And since it is implemented as an extension method; it does not pollute the interface of your classes. There might be a slight performance penalty when using this method; but I think it will be neglible for all but some extreme cases. But if you need to use it in a tight loop, you should propably make some performance measurements in advance ;-)</p>
+<p>Now, if only C# 3.0 had been available a couple of years ago, when I wrote a lot of statically typed datasets (automatically generated from the database schema using <a href="http://www.codesmithtools.com/">CodeSmith</a>, of course). The bulk of the code in those datasets where properties that would generally retrieve a value from a DataRow in a column named the same as the property. If I could have used the approach mentioned above, I am sure it would have saved me some sweat during later refactorings of the code in question.</p>
+<p>It is a Good Thing our tools and languages continually evolves.</p>

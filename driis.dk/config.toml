@@ -11,7 +11,10 @@ pygmentsstyle = "bw"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 
-disqusShortname = "yourdiscussshortname"
+# disqusShortname = "yourdiscussshortname"
+
+[permalinks]
+    posts = "/:year/:month/:slug/"
 
 [params]
     author = "Dennis Riis"
@@ -23,7 +26,7 @@ disqusShortname = "yourdiscussshortname"
     favicon_32 = "/img/favicon-32x32.png"
     favicon_16 = "/img/favicon-16x16.png"
 
-    footercontent = "Hello world"
+    footercontent = "Personal Site of Dennis Riis - views & expressions my own"
 
     hidecredits = false
     hidecopyright = false

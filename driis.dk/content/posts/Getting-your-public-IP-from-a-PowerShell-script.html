@@ -1,0 +1,34 @@
+﻿+++draft = false
+date = 2009-01-14T18:00:00.0000000Z
+title = "Getting your public IP from a PowerShell script"
+slug = "Getting-your-public-IP-from-a-PowerShell-script"
++++
+
+		<p>I often work on computers at different locations, and often, I need to know what public IP I am using to connect to the internet. Of course, this is easy to find out - I can just go to a website that tells me my IP, such as <a href="http://myip.dk/">http://myip.dk/</a>.</p>
+    <p>But I find this to be suboptimal. If I am configuring something, finding the IP involves firing up a browser, going to the site, and copying the IP displayed. It is a speed bump when I am trying to be productive - and the display-my-ip sites are often covered in commercials, which I dislike.</p>
+    <p>So today, I decided to write a PowerShell script that can tell me my current public IP address. First, I needed a reliable way of finding it. Of course, I could just screen-scrape off a site such as <a href="http://myip.dk/">http://myip.dk/</a>, but it has some disadvantages. I can't know if the html structure will change - and it would mean that I would have to download all of the HTML just to get a few bytes of IP address. Furthermore, I don't know whether it would be legal at all.</p>
+    <p>Therefore, I started by writing a small ASP .NET HTTP handler, that could tell me my IP. I put the following simple code in the ProcessRequest method:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre><span class="lnum"> 1: </span>    <span class="kwrd">public</span> <span class="kwrd">void</span> ProcessRequest (HttpContext context) {</pre>
+      <pre><span class="lnum"> 2: </span>        context.Response.ContentType = <span class="str">"text/plain"</span>;</pre>
+      <pre><span class="lnum"> 3: </span>        context.Response.AddHeader(<span class="str">"X-RemoteIP"</span>, HttpContext.Current.Request.UserHostAddress);</pre>
+      <pre><span class="lnum"> 4: </span>        context.Response.Write(HttpContext.Current.Request.UserHostAddress);        </pre>
+      <pre><span class="lnum"> 5: </span>    }</pre>
+    </div><p></p>
+    <p>This simply writes the IP address the handler is accessed with, to the response as well as to a custom http header. I then deployed this handler to my website.</p>
+    <p>Next, writing the PowerShell script, was equally simple; we can simply use the handy System.Net.WebClient class:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre><span class="lnum"> 1: </span>$ipFinderHost = <span class="str">"http://www.somedomain.org/GetIP.ashx"</span></pre>
+      <pre><span class="lnum"> 2: </span>$c = new-object System.Net.WebClient</pre>
+      <pre><span class="lnum"> 3: </span>$c.DownloadString($ipFinderHost)</pre>
+    </div><p></p>
+    <p>
+And voila, I have a PowerShell script that displays my public IP address. And, since I have the <a title="PSCX on CodePlex" href="http://www.codeplex.com/PowerShellCX">PowerShell Community Extensions</a> installed, I can use the set-clipboard cmdlet to copy it to the clipboard. </p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre><span class="lnum"> 1: </span>get-myip | set-clipboard</pre>
+    </div><p></p>
+    <p>
+Much nicer than manually copying from the text in a browser :-) If you decide to use this script yourself, obviously you will need to change the URL in the script to where you have deployed the GetIP.ashx handler.</p>

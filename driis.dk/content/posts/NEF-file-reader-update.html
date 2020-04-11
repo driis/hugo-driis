@@ -1,0 +1,27 @@
+﻿+++draft = false
+date = 2007-08-09T21:44:20.0000000Z
+title = "NEF file reader update"
+slug = "NEF-file-reader-update"
++++
+		<div class="entry">
+<p>Progress on the NEF / RAW file reader is slow, since i only work on it occasionally when I feel like coding in my spare time. However, I made some progress tonight, that I would like to update you about. </p>
+<p>First, NEF files are really TIFF files. So I need to parse them as a TIFF file to get some useful information out of them. TIFF files consists of so-called IFD tags, which in parts contains metadata about the image as well as the actual image data. Currently I have developed a basic IFD tag parser, that parses all of the IFD tags in a NEF file. </p>
+<p>Furthermore I have found, by looking at the IFD tags, that there are at least 3 embedded images in each NEF files. These are a small, low-quality 160x120 thumbnail represented as RGB data, a nearly full size JPG in low quality, as well as the actual NEF image data. While implementing the IFD parser, I had a lot of help from this <a title="TIFF FAQ" href="http://www.awaresystems.be/imaging/tiff/faq.html" target="_blank">TIFF FAQ</a>, as well as from the official <a title="TIFF specification" href="http://partners.adobe.com/public/developer/en/tiff/TIFF6.pdf" target="_blank">Adobe TIFF specification version 6</a>. </p>
+<p>Of course, the NEF image data is the interesting part. I have studied the file format, and made these conclusions; mostly based on what I can tell from the dcraw source code: </p>
+<ul>
+<li>The NEF file consists of Width * Height samples. <br /></li>
+<li>The data is represented as a Color Filter Array, that is each sample represents the intensity of a single color (<a title="CFA" href="http://en.wikipedia.org/wiki/Color_filter_array" target="_blank">since this is what the camera shoots, as many other digital cameras</a>); </li>
+<li>therefore, I must interpolate 2 of the colors for each sample, to get a full-color, full-scale image. </li>
+<li>Each sample is 12 bits. </li></ul>
+<p>But this is not all; it is not so simple as to just read 12 bits per sample. The data is compressed. As far as I can tell currently; the following is the compression scheme. </p>
+<ul>
+<li>A µ-law type compression curve is used to limit the number of possible sample values to 634 (and consequently companding the 12 bit values to log<sub>2</sub>(634) = 9.4 bits of actual accuray; while preserving the 12 bits dynamic range). </li>
+<li>The curve values are embedded in the file. </li>
+<li>Samples are indices to values in the curve. </li></ul>
+<p>Samples are encoded (compressed) like this: </p>
+<ul>
+<li>A simple predictor is used, so each value read is actually the difference between a previous sample value and the current. This keeps values stored in the file low and keeps differences between each value needed to be stored, low. </li>
+<li>Each value is&nbsp; stored as a run-length encoded length (in bits) of the value, and immediately thereafter, the actual value. </li>
+<li>Run length encoding is accomplished by using a classic Huffman table. </li></ul>
+<p>So, now I need to implement the reading of the actual sample values and interpolate the values to come up with a full color image. After that, I probably need to implement the reading or approximation of white balance of the image, so that the program will be able to produce actually usable images. </p></div>
+
