@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Sitecore Dictionary gotcha when using the master database"/>
+<meta name="twitter:description" content="During some projects at work, we were having a real weird problem with the Sitecore Dictionary feature. This is the built in feature in Sitecore that lets you localize short texts, such as what to put in the &#34;Read more&#34; or &#34;Next page&#34; links on a web page. Of course, there are many ways to do this, but since Dictionary items is a supported Sitecore feature, and they can be edited from within the Sitecore environment, it seems reasonable to use this for Sitecore sites."/>
+
+    <meta property="og:title" content="Sitecore Dictionary gotcha when using the master database" />
+<meta property="og:description" content="During some projects at work, we were having a real weird problem with the Sitecore Dictionary feature. This is the built in feature in Sitecore that lets you localize short texts, such as what to put in the &#34;Read more&#34; or &#34;Next page&#34; links on a web page. Of course, there are many ways to do this, but since Dictionary items is a supported Sitecore feature, and they can be edited from within the Sitecore environment, it seems reasonable to use this for Sitecore sites." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2009/06/sitecore-dictionary-gotcha-when-using-the-master-database/" />
+<meta property="article:published_time" content="2009-06-14T19:15:00+00:00" />
+<meta property="article:modified_time" content="2009-06-14T19:15:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2009/06/sitecore-dictionary-gotcha-when-using-the-master-database/">
+    
+    <title>
+  Sitecore Dictionary gotcha when using the master database · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2009/06/sitecore-dictionary-gotcha-when-using-the-master-database/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Sitecore Dictionary gotcha when using the master database</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2009-06-14T19:15:00Z'>
+                June 14, 2009
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>During some projects at work, we were having a real weird problem with the Sitecore Dictionary feature. This is the built in feature in Sitecore that lets you localize short texts, such as what to put in the "Read more" or "Next page" links on a web page. Of course, there are many ways to do this, but since Dictionary items is a supported Sitecore feature, and they can be edited from within the Sitecore environment, it seems reasonable to use this for Sitecore sites.</p>
+    <p>This is how it works: You put dictionary items under /sitecore/system/Dictionary. Each dictionary item consists of a shared key and a localized phrase field. That is, the key is the same for all languages, the phrase varies by language. To get a phrase at runtime, you use the static <strong>Translate.Text</strong> method and pass the key as a parameter, and it will return the correct phrase in the current context language (or you can explicitly pass a Language). This is also described <a title="Globalization article on Sitecore Developer Network" href="http://sdn5.sitecore.net/SDN5/FAQ/Archive/Administration/How%20is%20localization%20done%20in%20Sitecore.aspx" target="_blank">on SDN here</a> (you will need an SDN account to access the article). There even is an XSLT extension function for the Translate methods. Very nice.</p>
+    <p>The problem we were facing started to occur when we moved some of our front-end developers (who does most of the localization texts) away from working on a test-server, and instead having their own development version on their own workstation, working there (the way it really should be done - also gives you a better chance of running <a title="Continuous Integration article" href="http://www.martinfowler.com/articles/continuousIntegration.html" target="_blank">CI</a>). The problem was, that on one developer's workstation you would see one set of Dictionary items on the website, on another workstation there would be a different set. Sometimes all dictionary phrases was completely missing. Inside the Sitecore Content Editor, the data seemed to be correct.</p>
+    <p>So I started digging around to find an explanation. I started using <a title=".NET Reflector" href="http://www.red-gate.com/products/reflector/" target="_blank">Reflector</a> to determine what was really going on in the Sitecore.Globalization.Translate class. I quickly found out, that the class internally keeps a Hashtable containing the languages, and in that a Hashtable for each language's texts, in memory. Great for quick lookups. So when and how is the Hashtable filled with data ? This is where it gets tricky. When a phrase is first requested (after a application restart), Sitecore will look for a file called dictionary.dat in the temp directory and try to load it. This is where the Translate class keeps it's persistent cache: Each time a key is added, it will get saved to the file (in addition to being kept in memory); and it will try to load it from there when a phrase is requested, and there is no dictionary data in memory. If reading this file fails, it will rebuild it from the data in the database. Here lies the first problem: You might know that Sitecore operates with a core database (for Sitecore itself), a master database for content and a web database that content is served from. As it turns out, the dictionary will only ever be re-populated with data from the core database. This is hard-coded in the class. And we were adding all our Dictionary items to the master database (since this is really where they should be, it is content). This was my first "that's funny" moment - If the dictionary cache only rebuilds from core; how could our setup ever have worked ??</p>
+    <p>Time to research some more. After some more tinkering around, I found the Sitecore.Globalization.ItemSaveEventHandler. This is an event handler, that is hooked up to the ItemSaving event in web.config. What this does, is that whenever an item is saved, if it is of type "dictionary item", it will add the key and phrase to the internal language hashtable, which will also trigger a save of the dictionary.dat file. This event handler however, does not care which database is being used. Both master and core (and web for that matter) database saves, will trigger a update of the cache.</p>
+    <p>This explained everything. If Sitecore is being used on the same machine only, dictionary items in the master database, will work. If it is deployed to production, it will work, because we typically copy the entire website folder, including the temp files, and thus the "correct" dictionary.dat. However, if Sitecore is used in parallel on different servers, you will start seeing the errors we were seing, inconsistent and/or missing dictionary entries. This could be an issue during development if you setup the environment on different developer workstations, but also in staging environments or in load-balanced environments (depending on your setup). If dictionary items (again, in the master database), is saved in parallel on different environments, it will generate different dictionary.dat files with different phrases, and it is impossible to merge. And if you lose dictionary.dat, you can't restore the master dictionary entries without saving each item again.</p>
+    <p>Revisiting the SDN documentation, though it is quite thin on the subject, it does state that you should add your own dictionary items to the <strong>core</strong> database. It feels wrong to do this, since our own dictionary items would then be mixed with Sitecore's own internal ones; and because I don't think the core database is a place to store customer data. So I guess it is not a bug that storing dictionary items in the master is not supported, but it would be a nice and reasonable feature. But I do think that there is a bug here; in that it is at all possible to use dictionary items stored in master, when it is not supported. It should definitely work consistently; and not be some half-baked feature that works "occasionally, if you use the right setup". It should also be noted that the Dictionary node is already in the master database in a clean installation, so there are no alarm clocks going off when the novice Sitecore programmer starts using it.</p>
+    <p>Now, we already have solutions in production using this approach, and time committed on ongoing projects for using it this way. So we needed a way to ensure that dictionary items in the master database would behave consistently and just work. </p>
+    <p>The solution is below. It is basically a class that can rebuild the Sitecore dictionary from both databases. It reuses the Sitecore logic by invoking their Load and Save methods using reflection, and overwriting the static _languages hashtable field in the Translate class. This is really not pretty, it is a ugly hack, and I would definitely prefer not to use reflection to call into methods that were never intended to be used from outside the class. That being said however, it seems to work - but of course there are no guarantees, and if it blows up or kills your kitten; I'm not responsible.</p>
+    <p>To use it, simply call the Rebuild method. I used a custom IHttpHandler for the purpose, so I can call the URL whenever needed (don't deploy the handler it into production however ;-) ). After the cache has been rebuilt, you can share the dictionary.dat with other development machines just by copying it, or you can just rebuild when needed at each developer's discretion.</p>
+    <div class="csharpcode">
+      <pre>        <span class="lnum"> 1: </span><span class="kwrd">using</span> System;</pre>
+      <pre>        <span class="lnum"> 2: </span><span class="kwrd">using</span> System.Reflection;</pre>
+      <pre>        <span class="lnum"> 3: </span><span class="kwrd">using</span> Sitecore.Data;</pre>
+      <pre>        <span class="lnum"> 4: </span><span class="kwrd">using</span> Sitecore.Configuration;</pre>
+      <pre>        <span class="lnum"> 5: </span><span class="kwrd">using</span> System.Collections;</pre>
+      <pre>        <span class="lnum"> 6: </span><span class="kwrd">using</span> Sitecore.Data.Items;</pre>
+      <pre>        <span class="lnum"> 7: </span><span class="kwrd">using</span> Sitecore.SecurityModel;</pre>
+      <pre>        <span class="lnum"> 8: </span></pre>
+      <pre>        <span class="lnum"> 9: </span><span class="kwrd">namespace</span> Webdanmark.SitecoreCMS.Common.Utility</pre>
+      <pre>        <span class="lnum"> 10: </span>{</pre>
+      <pre>        <span class="lnum"> 11: </span>    <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 12: </span>    <span class="rem">/// This class supports rebuilding the Sitecore dictionary from both Core and Master databases.</span></pre>
+      <pre>        <span class="lnum"> 13: </span>    <span class="rem">/// Default implementation from Sitecore can only rebuild from Core, which leads to various issues if</span></pre>
+      <pre>        <span class="lnum"> 14: </span>    <span class="rem">/// the temp dictionary.dat file is lost, or editing happens on multiple servers.</span></pre>
+      <pre>        <span class="lnum"> 15: </span>    <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 16: </span>    <span class="rem">/// &lt;remarks&gt;</span></pre>
+      <pre>        <span class="lnum"> 17: </span>    <span class="rem">/// This class tinkers with Sitecore private methods and internal workings. Not pretty.</span></pre>
+      <pre>        <span class="lnum"> 18: </span>    <span class="rem">/// This is a hack to workaround a limitation in Sitecore without re-implementing the whole thing.</span></pre>
+      <pre>        <span class="lnum"> 19: </span>    <span class="rem">/// &lt;/remarks&gt;</span></pre>
+      <pre>        <span class="lnum"> 20: </span>    <span class="kwrd">public</span> <span class="kwrd">class</span> DictionaryRebuilder</pre>
+      <pre>        <span class="lnum"> 21: </span>    {</pre>
+      <pre>        <span class="lnum"> 22: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 23: </span>        <span class="rem">/// Event fired when progress in the task occurs.</span></pre>
+      <pre>        <span class="lnum"> 24: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 25: </span>        <span class="kwrd">public</span> <span class="kwrd">event</span> EventHandler&lt;DictionaryRebuilderEventArgs&gt; Progress;</pre>
+      <pre>        <span class="lnum"> 26: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 27: </span>        <span class="rem">/// Databases.</span></pre>
+      <pre>        <span class="lnum"> 28: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 29: </span>        <span class="kwrd">private</span> <span class="kwrd">readonly</span> Database[] databases;</pre>
+      <pre>        <span class="lnum"> 30: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 31: </span>        <span class="rem">/// The Translate type.</span></pre>
+      <pre>        <span class="lnum"> 32: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 33: </span>        <span class="kwrd">private</span> <span class="kwrd">readonly</span> Type translateType;</pre>
+      <pre>        <span class="lnum"> 34: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 35: </span>        <span class="rem">/// Load method.</span></pre>
+      <pre>        <span class="lnum"> 36: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 37: </span>        <span class="kwrd">private</span> <span class="kwrd">readonly</span> Action&lt;Hashtable, Item&gt; loadMethod;</pre>
+      <pre>        <span class="lnum"> 38: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 39: </span>        <span class="rem">/// Binding flags for a private static member.</span></pre>
+      <pre>        <span class="lnum"> 40: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 41: </span>        <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> BindingFlags privateStatic = BindingFlags.Static | BindingFlags.NonPublic;</pre>
+      <pre>        <span class="lnum"> 42: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 43: </span>        <span class="rem">/// Save method</span></pre>
+      <pre>        <span class="lnum"> 44: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 45: </span>        <span class="kwrd">private</span> <span class="kwrd">readonly</span> Action saveMethod;</pre>
+      <pre>        <span class="lnum"> 46: </span> </pre>
+      <pre>        <span class="lnum"> 47: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 48: </span>        <span class="rem">/// Initializes a new instance of the &lt;see cref="DictionaryRebuilder"/&gt; class.</span></pre>
+      <pre>        <span class="lnum"> 49: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 50: </span>        <span class="kwrd">public</span> DictionaryRebuilder()</pre>
+      <pre>        <span class="lnum"> 51: </span>        {</pre>
+      <pre>        <span class="lnum"> 52: </span>            databases = <span class="kwrd">new</span>[] { Factory.GetDatabase(<span class="str">"core"</span>), Factory.GetDatabase(<span class="str">"master"</span>)};</pre>
+      <pre>        <span class="lnum"> 53: </span>            translateType = <span class="kwrd">typeof</span>(Sitecore.Globalization.Translate);</pre>
+      <pre>        <span class="lnum"> 54: </span>            loadMethod = (Action&lt;Hashtable, Item&gt;) FindMethod&lt;Action&lt;Hashtable,Item&gt;&gt;(<span class="str">"Load"</span>, privateStatic, <span class="kwrd">typeof</span> (Hashtable), <span class="kwrd">typeof</span> (Item));</pre>
+      <pre>        <span class="lnum"> 55: </span>            saveMethod = (Action) FindMethod&lt;Action&gt;(<span class="str">"Save"</span>, privateStatic);</pre>
+      <pre>        <span class="lnum"> 56: </span>        }</pre>
+      <pre>        <span class="lnum"> 57: </span> </pre>
+      <pre>        <span class="lnum"> 58: </span> </pre>
+      <pre>        <span class="lnum"> 59: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 60: </span>        <span class="rem">/// Rebuilds the dictionary cache.</span></pre>
+      <pre>        <span class="lnum"> 61: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 62: </span>        <span class="kwrd">public</span> <span class="kwrd">void</span> Rebuild()</pre>
+      <pre>        <span class="lnum"> 63: </span>        {</pre>
+      <pre>        <span class="lnum"> 64: </span>            Hashtable rootTable = <span class="kwrd">new</span> Hashtable(10);</pre>
+      <pre>        <span class="lnum"> 65: </span>            <span class="kwrd">foreach</span> (var db <span class="kwrd">in</span> databases)</pre>
+      <pre>        <span class="lnum"> 66: </span>            {</pre>
+      <pre>        <span class="lnum"> 67: </span>                var langs = db.Languages;</pre>
+      <pre>        <span class="lnum"> 68: </span>                SendMessage(<span class="str">"\nProcessing {0} database, {1} languages."</span>, db.Name, langs.Length);</pre>
+      <pre>        <span class="lnum"> 69: </span>                <span class="kwrd">foreach</span> (var language <span class="kwrd">in</span> langs)</pre>
+      <pre>        <span class="lnum"> 70: </span>                {</pre>
+      <pre>        <span class="lnum"> 71: </span>                    <span class="kwrd">string</span> languageKey = language.ToString();</pre>
+      <pre>        <span class="lnum"> 72: </span>                    Hashtable languageTable;</pre>
+      <pre>        <span class="lnum"> 73: </span>                    <span class="kwrd">if</span> (rootTable.ContainsKey(languageKey))</pre>
+      <pre>        <span class="lnum"> 74: </span>                        languageTable = (Hashtable)rootTable[languageKey];</pre>
+      <pre>        <span class="lnum"> 75: </span>                    <span class="kwrd">else</span></pre>
+      <pre>        <span class="lnum"> 76: </span>                        rootTable[languageKey] = languageTable = <span class="kwrd">new</span> Hashtable();</pre>
+      <pre>        <span class="lnum"> 77: </span> </pre>
+      <pre>        <span class="lnum"> 78: </span>                    RebuildLanguage(db, language, languageTable);</pre>
+      <pre>        <span class="lnum"> 79: </span>                }</pre>
+      <pre>        <span class="lnum"> 80: </span>            }</pre>
+      <pre>        <span class="lnum"> 81: </span>            SendMessage(<span class="str">"\nLanguages loaded."</span>);</pre>
+      <pre>        <span class="lnum"> 82: </span>            ReplaceSitecoreTable(rootTable);</pre>
+      <pre>        <span class="lnum"> 83: </span>            SendMessage(<span class="str">"Writing data cache to file."</span>);</pre>
+      <pre>        <span class="lnum"> 84: </span>            saveMethod();</pre>
+      <pre>        <span class="lnum"> 85: </span>            SendMessage(<span class="str">"\nDone."</span>);</pre>
+      <pre>        <span class="lnum"> 86: </span>        }</pre>
+      <pre>        <span class="lnum"> 87: </span> </pre>
+      <pre>        <span class="lnum"> 88: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 89: </span>        <span class="rem">/// Finds the method.</span></pre>
+      <pre>        <span class="lnum"> 90: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 91: </span>        <span class="rem">/// &lt;typeparam name="TDelegate"&gt;The type of the delegate.&lt;/typeparam&gt;</span></pre>
+      <pre>        <span class="lnum"> 92: </span>        <span class="rem">/// &lt;param name="name"&gt;The name.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 93: </span>        <span class="rem">/// &lt;param name="bindingFlags"&gt;The binding flags.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 94: </span>        <span class="rem">/// &lt;param name="parameterTypes"&gt;The parameter types.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 95: </span>        <span class="rem">/// &lt;returns&gt;&lt;/returns&gt;</span></pre>
+      <pre>        <span class="lnum"> 96: </span>        <span class="kwrd">private</span> Delegate FindMethod&lt;TDelegate&gt;(<span class="kwrd">string</span> name, BindingFlags bindingFlags, <span class="kwrd">params</span> Type[] parameterTypes)            </pre>
+      <pre>        <span class="lnum"> 97: </span>        {</pre>
+      <pre>        <span class="lnum"> 98: </span>            MethodInfo method = translateType.GetMethod(name, bindingFlags, Type.DefaultBinder, parameterTypes, <span class="kwrd">null</span>);</pre>
+      <pre>        <span class="lnum"> 99: </span>            <span class="kwrd">return</span> Delegate.CreateDelegate(<span class="kwrd">typeof</span> (TDelegate), method);</pre>
+      <pre>        <span class="lnum"> 100: </span>        }</pre>
+      <pre>        <span class="lnum"> 101: </span> </pre>
+      <pre>        <span class="lnum"> 102: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 103: </span>        <span class="rem">/// Replaces the sitecore table.</span></pre>
+      <pre>        <span class="lnum"> 104: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 105: </span>        <span class="rem">/// &lt;param name="hashtable"&gt;The hashtable.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 106: </span>        <span class="kwrd">private</span> <span class="kwrd">void</span> ReplaceSitecoreTable(Hashtable hashtable)</pre>
+      <pre>        <span class="lnum"> 107: </span>        {</pre>
+      <pre>        <span class="lnum"> 108: </span>            FieldInfo fi = translateType.GetField(<span class="str">"_languages"</span>, privateStatic);</pre>
+      <pre>        <span class="lnum"> 109: </span>            fi.SetValue(<span class="kwrd">null</span>,hashtable);</pre>
+      <pre>        <span class="lnum"> 110: </span>        }</pre>
+      <pre>        <span class="lnum"> 111: </span> </pre>
+      <pre>        <span class="lnum"> 112: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 113: </span>        <span class="rem">/// Rebuilds the language.</span></pre>
+      <pre>        <span class="lnum"> 114: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 115: </span>        <span class="rem">/// &lt;param name="db"&gt;The db.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 116: </span>        <span class="rem">/// &lt;param name="language"&gt;The language.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 117: </span>        <span class="rem">/// &lt;param name="languageTable"&gt;The language table.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 118: </span>        <span class="kwrd">private</span> <span class="kwrd">void</span> RebuildLanguage(Database db, Sitecore.Globalization.Language language, Hashtable languageTable)</pre>
+      <pre>        <span class="lnum"> 119: </span>        {</pre>
+      <pre>        <span class="lnum"> 120: </span>            <span class="kwrd">using</span> (<span class="kwrd">new</span> SecurityDisabler())</pre>
+      <pre>        <span class="lnum"> 121: </span>            {</pre>
+      <pre>        <span class="lnum"> 122: </span>                var dictionaryRoot = db.GetItem(<span class="str">"/sitecore/system/dictionary"</span>, language);</pre>
+      <pre>        <span class="lnum"> 123: </span>                <span class="kwrd">if</span> (dictionaryRoot == <span class="kwrd">null</span>)</pre>
+      <pre>        <span class="lnum"> 124: </span>                {</pre>
+      <pre>        <span class="lnum"> 125: </span>                    SendMessage(<span class="str">"\tNo dictionary found in {0} for {1}"</span>, db.Name, language.Name);</pre>
+      <pre>        <span class="lnum"> 126: </span>                    <span class="kwrd">return</span>;</pre>
+      <pre>        <span class="lnum"> 127: </span>                }</pre>
+      <pre>        <span class="lnum"> 128: </span> </pre>
+      <pre>        <span class="lnum"> 129: </span>                SendMessage(<span class="str">"\tProcessing {0}"</span>, language.Name);</pre>
+      <pre>        <span class="lnum"> 130: </span>                loadMethod(languageTable, dictionaryRoot);</pre>
+      <pre>        <span class="lnum"> 131: </span>            }</pre>
+      <pre>        <span class="lnum"> 132: </span>        }</pre>
+      <pre>        <span class="lnum"> 133: </span> </pre>
+      <pre>        <span class="lnum"> 134: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 135: </span>        <span class="rem">/// Sends the message.</span></pre>
+      <pre>        <span class="lnum"> 136: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 137: </span>        <span class="rem">/// &lt;param name="msg"&gt;The MSG.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 138: </span>        <span class="rem">/// &lt;param name="inserts"&gt;The inserts.&lt;/param&gt;</span></pre>
+      <pre>        <span class="lnum"> 139: </span>        <span class="kwrd">private</span> <span class="kwrd">void</span> SendMessage(<span class="kwrd">string</span> msg, <span class="kwrd">params</span> <span class="kwrd">object</span> [] inserts)</pre>
+      <pre>        <span class="lnum"> 140: </span>        {</pre>
+      <pre>        <span class="lnum"> 141: </span>            <span class="kwrd">if</span> (Progress != <span class="kwrd">null</span>)</pre>
+      <pre>        <span class="lnum"> 142: </span>            {</pre>
+      <pre>        <span class="lnum"> 143: </span>                var args = <span class="kwrd">new</span> DictionaryRebuilderEventArgs {Message = String.Format(msg, inserts)};</pre>
+      <pre>        <span class="lnum"> 144: </span>                Progress(<span class="kwrd">this</span>, args);</pre>
+      <pre>        <span class="lnum"> 145: </span>            }</pre>
+      <pre>        <span class="lnum"> 146: </span>        }</pre>
+      <pre>        <span class="lnum"> 147: </span> </pre>
+      <pre>        <span class="lnum"> 148: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 149: </span>        <span class="rem">/// Event arguments</span></pre>
+      <pre>        <span class="lnum"> 150: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 151: </span>        <span class="kwrd">public</span> <span class="kwrd">class</span> DictionaryRebuilderEventArgs : EventArgs</pre>
+      <pre>        <span class="lnum"> 152: </span>        {</pre>
+      <pre>        <span class="lnum"> 153: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 154: </span>            <span class="rem">/// Gets or sets the message.</span></pre>
+      <pre>        <span class="lnum"> 155: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>        <span class="lnum"> 156: </span>            <span class="rem">/// &lt;value&gt;The message.&lt;/value&gt;</span></pre>
+      <pre>        <span class="lnum"> 157: </span>            <span class="kwrd">public</span> <span class="kwrd">string</span> Message { get; set; }</pre>
+      <pre>        <span class="lnum"> 158: </span>        }        </pre>
+      <pre>        <span class="lnum"> 159: </span>    }</pre>
+      <pre>        <span class="lnum"> 160: </span>}</pre>
+    </div>
+    <p> And you could use it like this:</p>
+    <div class="csharpcode">
+      <pre>        <span class="lnum">1: </span>DictionaryRebuilder builder = <span class="kwrd">new</span> DictionaryRebuilder();</pre>
+      <pre>        <span class="lnum">2: </span>builder.Progress += (s, e) =&gt; Response.WriteLine(e.Message);</pre>
+      <pre>        <span class="lnum">3: </span>builder.Rebuild();</pre>
+    </div>
+    <p>
+    </p>
+    <p>If you want to display progress while rebuilding, hookup the Progress method to some event handler. The one in my example won't compile for you, since Response.WriteLine is an extension method in one of our common libraries.</p>
+    <p>
+      <em>Disclaimer: The contents of this Blog post is my own opinions only. I am not affiliated with Sitecore in any way. Some of the technical details was extracted using <a href="http://www.red-gate.com/products/reflector/" target="_blank">Reflector</a>, and some are educated guesswork. I might be wrong, and Sitecore might very well change the implementation in a later version, so that the information above does no longer apply. This was done on Sitecore 6.0.1. rev 090212, but I suspect that the general idea is the same in previous Sitecore versions.</em> </p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

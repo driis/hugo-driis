@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="How to create an ASP .NET Captcha Control (part 2)"/>
+<meta name="twitter:description" content="This is the second in a&nbsp;3 part series on how to create an ASP .NET Captcha control. The previous post can be found here. This time we will look at how the CAPTCHA image can be generated using the built-in .NET framework classes.
+Image generation approach
+As described in the first post, the idea is to create an image showing a word, and let the user repeat it by typing it into a textbox."/>
+
+    <meta property="og:title" content="How to create an ASP .NET Captcha Control (part 2)" />
+<meta property="og:description" content="This is the second in a&nbsp;3 part series on how to create an ASP .NET Captcha control. The previous post can be found here. This time we will look at how the CAPTCHA image can be generated using the built-in .NET framework classes.
+Image generation approach
+As described in the first post, the idea is to create an image showing a word, and let the user repeat it by typing it into a textbox." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/05/how-to-create-an-asp-.net-captcha-control-part-2/" />
+<meta property="article:published_time" content="2008-05-04T19:28:45+00:00" />
+<meta property="article:modified_time" content="2008-05-04T19:28:45+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/05/how-to-create-an-asp-.net-captcha-control-part-2/">
+    
+    <title>
+  How to create an ASP .NET Captcha Control (part 2) · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/05/how-to-create-an-asp-.net-captcha-control-part-2/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">How to create an ASP .NET Captcha Control (part 2)</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-05-04T19:28:45Z'>
+                May 4, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>
+				<a href="https://www.driis.dk/2008/4/HowToCreateCaptcha.aspx">
+				</a>This is the second in a&nbsp;3 part series on how to create an ASP .NET Captcha control. The <a href="https://www.driis.dk/2008/4/HowToCreateCaptcha.aspx">previous post can be found here</a>. This time we will look at how the CAPTCHA image can be generated using the built-in .NET framework classes.</p>
+<p><strong>Image generation approach<br /></strong>As described in the first post, the idea is to create an image showing a word, and let the user repeat it by typing it into a textbox. The image should be hard to read for OCR software, so that the CAPTCHA is hard to beat for automated bots. The way we will be doing this, is by stretching and warping the text, and adding noise. Luckily, this is easy to accomplish by using the GraphicsPath class to draw the string, and then use the Warp method on the GraphicsPath object.</p>
+<p><strong>Generating the image: Step by step<br /></strong>The first step in generating the image is to create a Bitmap object with the appropiate dimensions. We will also need a Font for the text, and a Brush for painting the text. I also declare a rectangle that is slightly smaller than the actual image, which will be used as the drawing bounds later. This will help to ensure, that the text fits on the image after the transformations:</p>
+<p><!-- code formatted by http://manoli.net/csharpformat/ --></p>
+<div class="csharpcode"><pre class="alt">        <span class="rem">/// <summary></summary><pre>        <span class="rem">/// Generates the CAPTCHA image.</span></pre><pre class="alt">        <span class="rem">/// </span></pre></span></pre><pre>        <span class="rem">/// <returns></returns></span></pre><pre class="alt">        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">byte</span>[] GenerateImage()</pre><pre>        {</pre><pre class="alt">            <span class="rem">// Create image.</span></pre><pre>            var image = <span class="kwrd">new</span> Bitmap(size.Width, size.Height, PixelFormat.Format24bppRgb);</pre><pre class="alt">            var imgRectangle = <span class="kwrd">new</span> Rectangle(10, 10, image.Width - 10, image.Height - 10);</pre><pre>            <span class="rem">// Get font and brush.</span></pre><pre class="alt">            var brush = <span class="kwrd">new</span> HatchBrush(HatchStyle.SolidDiamond, Color.Black, Color.FromArgb(rand.Next(160),rand.Next(160),rand.Next(160)));</pre><pre>            var font = <span class="kwrd">new</span> Font(fonts[rand.Next(fonts.Length - 1)], imgRectangle.Height, FontStyle.Italic, GraphicsUnit.Pixel);</pre></div><pre><span style="FONT-FAMILY: Arial"></span> </pre><pre><span style="FONT-FAMILY: Arial">Notice that we use a HatchBrush so that the word will be drawn using a hatch pattern. Ensuring that the text is not solid color, will help defeat OCR attacks. The actual font used is also chosen at random from a predefined list.</span>
+				</pre><pre><span style="FONT-FAMILY: Arial">The next step is to get a <a title="Graphics class on MSDN" href="http://msdn2.microsoft.com/en-us/library/system.drawing.graphics.aspx">Graphics</a> object from the image, and use it to draw on the image. We'll wrap the code using the <a title="Graphics class on MSDN" href="http://msdn2.microsoft.com/en-us/library/system.drawing.graphics.aspx">Graphics</a> object in a <a title="using keyword on MSDN" href="http://msdn.microsoft.com/en-us/library/yh598w02(VS.80).aspx">using region</a> to ensure that the instance is disposed as soon as we don't need it more. We then fill the background with white color and create a <a title="GraphicsPath class on MSDN" href="http://msdn2.microsoft.com/en-us/library/system.drawing.drawing2d.graphicspath.aspx">GraphicsPath</a> instance, to which the selected Captcha word is added using the <a title="GraphicsPath AddString MSDN documentation" href="http://msdn.microsoft.com/en-us/library/system.drawing.drawing2d.graphicspath.addstring.aspx">AddString</a> method. The path object can now be warped, by stretching the corners a random amount. We also rotate the text a bit (between --10 and 10 degrees):</span></pre><pre><span style="FONT-FAMILY: Arial"></span>
+ </pre><!-- code formatted by http://manoli.net/csharpformat/ -->
+<div class="csharpcode"><pre class="alt">            <span class="rem">// draw on the image.</span></pre><pre>            <span class="kwrd">using</span>(Graphics g = Graphics.FromImage(image))</pre><pre class="alt">            {</pre><pre>                g.FillRectangle(Brushes.WhiteSmoke, 0, 0, image.Width, image.Height);</pre><pre class="alt">                var path = <span class="kwrd">new</span> GraphicsPath();</pre><pre>                <span class="rem">// Make sure text fits</span></pre><pre class="alt">                <span class="kwrd">while</span> (g.MeasureString(CaptchaWord, font).Width &gt; imgRectangle.Width)</pre><pre>                    font = <span class="kwrd">new</span> Font(font.FontFamily, font.Size - 1, font.Style);</pre><pre class="alt">                </pre><pre>                path.AddString(CaptchaWord, font.FontFamily, (<span class="kwrd">int</span>)font.Style, font.Size, imgRectangle, StringFormat.GenericDefault);</pre><pre class="alt">                <span class="kwrd">float</span> v = 4;</pre><pre>                var warpPoints = <span class="kwrd">new</span> PointF[]</pre><pre class="alt">                                           {</pre><pre>                                                <span class="kwrd">new</span> PointF(rand.Next(imgRectangle.Width) / v,  rand.Next(imgRectangle.Height) / v),</pre><pre class="alt">                                                <span class="kwrd">new</span> PointF(imgRectangle.Width - rand.Next(imgRectangle.Width) / v,  rand.Next(imgRectangle.Height) / v),</pre><pre>                                                <span class="kwrd">new</span> PointF(rand.Next(imgRectangle.Width)/v, imgRectangle.Height - rand.Next(imgRectangle.Height) / v), </pre><pre class="alt">                                                <span class="kwrd">new</span> PointF(imgRectangle.Width - rand.Next(imgRectangle.Width) / v, imgRectangle.Height - rand.Next(imgRectangle.Height)/ v) </pre><pre>                                            };</pre><pre class="alt">                var warpMatrix = <span class="kwrd">new</span> Matrix();</pre><pre>                warpMatrix.Rotate(rand.Next(20) - 10);</pre><pre class="alt">                path.Warp(warpPoints, imgRectangle, warpMatrix, WarpMode.Perspective);                </pre><pre>                g.FillPath(brush, path);</pre></div><pre> </pre><pre>The next step is to add a bit of noise to the image. This is done by drawing some small elipses (dots) randomly in the image, with a random color. This is implemented with a LINQ query selecting the details for each random dot:</pre><pre> </pre><!-- code formatted by http://manoli.net/csharpformat/ -->
+<div class="csharpcode"><pre class="alt">                <span class="rem">// Add some noise.</span></pre><pre>                var noise = from e <span class="kwrd">in</span> Enumerable.Range(0, NoiseAmount)</pre><pre class="alt">                         select <span class="kwrd">new</span></pre><pre>                                    {</pre><pre class="alt">                                        X = rand.Next(image.Width),</pre><pre>                                        Y = rand.Next(image.Height),</pre><pre class="alt">                                        R = 1f + (<span class="kwrd">float</span>)rand.NextDouble() * 3f,</pre><pre>                                        Brush = <span class="kwrd">new</span> SolidBrush(Color.FromArgb(rand.Next(255), rand.Next(255), rand.Next(255)))</pre><pre class="alt">                                    };</pre><pre> </pre><pre class="alt">                <span class="kwrd">foreach</span> (var p <span class="kwrd">in</span> noise)</pre><pre>                    g.FillEllipse(p.Brush, p.X, p.Y, p.R, p.R);</pre><pre class="alt">            }</pre><pre class="alt"> </pre><pre class="alt">Finally, the resulting image is saved to PNG format in-memory and returned from the method. </pre><pre class="alt"> </pre><pre class="alt">   <span class="rem">// Save to buffer and return raw png image bytes.</span><pre>            <span class="kwrd">using</span>(var buffer = <span class="kwrd">new</span> MemoryStream())</pre><pre class="alt">            {</pre><pre>                image.Save(buffer, ImageFormat.Png);</pre><pre class="alt">                <span class="kwrd">return</span> buffer.GetBuffer();</pre><pre>            }</pre></pre></div><pre class="alt"> </pre><pre class="alt">We will use a <a href="http://msdn.microsoft.com/en-us/library/ms228090.aspx">custom http handler</a> by implementing <a title="IHttpHandler on MSDN" href="http://msdn.microsoft.com/en-us/library/system.web.ihttphandler.aspx">IHttpHandler </a>to send the image to the client. This will be the subject for the next post in the series. </pre>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

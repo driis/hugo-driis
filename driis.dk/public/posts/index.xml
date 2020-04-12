@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Dennis Riis Personal Site</title>
-    <link>https://www.driis.dk/</link>
-    <description>Recent content on Dennis Riis Personal Site</description>
+    <title>Posts on Dennis Riis Personal Site</title>
+    <link>https://www.driis.dk/posts/</link>
+    <description>Recent content in Posts on Dennis Riis Personal Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>da-DK</language>
-    <lastBuildDate>Sun, 12 Apr 2020 20:31:07 +0200</lastBuildDate>
+    <lastBuildDate>Fri, 05 Oct 2012 17:05:10 +0200</lastBuildDate>
     
-	<atom:link href="https://www.driis.dk/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://www.driis.dk/posts/index.xml" rel="self" type="application/rss+xml" />
     
-    
-    <item>
-      <title>About</title>
-      <link>https://www.driis.dk/about/</link>
-      <pubDate>Sun, 12 Apr 2020 20:31:07 +0200</pubDate>
-      
-      <guid>https://www.driis.dk/about/</guid>
-      <description>My name is Dennis Riis, and I do software for a living. I am currently employed at eBay Classifieds, in Århus, Dennmark, where I am the lead architect - technically responsible for the technology, quality and code for the 3 main platforms offered by eBay in Denmark: DBA, Bilbasen and BilInfo. I started my stint at eBay as a Backend Engineer, coming from a similar role at the e-commerce agency Impact.</description>
-    </item>
     
     <item>
       <title>What is TypeScript and why should I care ? </title>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="How to: Create an ASP.NET CAPTCHA Control (part 1)"/>
+<meta name="twitter:description" content="As I explained in my previous post, I developed a CAPTCHA ASP.NET control for this blog. In the next few posts, I will explain the steps involved in doing this, and how you can develop your own CAPTCHA control.
+Preparations
+There are some variations on CAPTCHA tests, the most common one requiring the user to input the characters displayed on an image. The idea is that only a human will be able to read these characters; so if the challenge response is correct, it is most likely a &quot;real human&quot; submitting the data."/>
+
+    <meta property="og:title" content="How to: Create an ASP.NET CAPTCHA Control (part 1)" />
+<meta property="og:description" content="As I explained in my previous post, I developed a CAPTCHA ASP.NET control for this blog. In the next few posts, I will explain the steps involved in doing this, and how you can develop your own CAPTCHA control.
+Preparations
+There are some variations on CAPTCHA tests, the most common one requiring the user to input the characters displayed on an image. The idea is that only a human will be able to read these characters; so if the challenge response is correct, it is most likely a &quot;real human&quot; submitting the data." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/04/how-to-create-an-asp.net-captcha-control-part-1/" />
+<meta property="article:published_time" content="2008-04-13T17:40:46+00:00" />
+<meta property="article:modified_time" content="2008-04-13T17:40:46+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/04/how-to-create-an-asp.net-captcha-control-part-1/">
+    
+    <title>
+  How to: Create an ASP.NET CAPTCHA Control (part 1) · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/04/how-to-create-an-asp.net-captcha-control-part-1/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">How to: Create an ASP.NET CAPTCHA Control (part 1)</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-04-13T17:40:46Z'>
+                April 13, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>As I explained in my <a href="https://www.driis.dk/" shape="rect">previous post</a>, I developed a <a href="http://en.wikipedia.org/wiki/Captcha" title="CAPTCHA on Wikipedia" shape="rect">CAPTCHA </a>ASP.NET control for this blog. In the next few posts, I will explain the steps involved in doing this, and how you can develop your own CAPTCHA control.</p>
+<p><strong>Preparations<br /></strong>There are some variations on CAPTCHA tests, the most common one requiring the user to input the characters displayed on an image. The idea is that only a human will be able to read these characters; so if the challenge response is correct, it is most likely a &quot;real human&quot; submitting the data. Since modern OCR software can be quite efficient, it is neccessary to make the charaters hard-to-read by altering shape, adding noise or lines. Of course these measures also make the CAPTCHA harder to read for a human. For my CAPTCHA control, I decided to create a control, that emphasizes on ease-of-use for the end user. Therefore, the images generated should be easy to read.</p>
+<p>When deciding which characters to display on the image, there are generally two approaches: Generate some randomly, or choose between a pre-defined set of words. I choose the latter approach, since it would be easiest for a human to recognize an actual word. Therefore, I am storing a list of English words, from which I select one randomly whenever I need to generate a CAPTCHA.</p>
+<p><strong>Step one: Creating the basic control<br /></strong>I have chosen to implement the CAPTCHA as a UserControl, so that the look and/or different parts of the control can be changed at a later time, if I need to do so. So I created a UserControl and placed an image tag and a textbox on it. These are the essential parts of the CAPTCHA control.</p>
+<p>The basic control implementation does the following: Whenever the control is shown, a word is selected randomly for the challenge. A unique, random URL for the CAPTCHA image is also generated. The purpose of using a unique URL is to ensure that the browser does not display an old CAPTCHA image because it caches it locally. </p>
+<p>The selected word is stored in Session state. Alongside the URL, it is exposed as a public static property, that populates on-demand. This makes sure that the image-rendering code will be able to get the correct word, and the encapsulation ensures that I can change the storage if necessary. This is the implementation of these two properties:</p><!-- code formatted by http://manoli.net/csharpformat/  -->
+<div class="csharpcode"><pre _xml3a_space="preserve"><span class="lnum">1: </span>        <span class="rem">/// <pre>2:         /// Gets the captcha URL.</pre><pre>3:         /// </pre></span></pre><pre _xml3a_space="preserve"><span class="lnum">4: </span>        <span class="rem">/// The captcha URL.</span></pre><pre _xml3a_space="preserve"><span class="lnum">5: </span>        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">string</span> CaptchaUrl </pre><pre _xml3a_space="preserve"><span class="lnum">6: </span>        { </pre><pre _xml3a_space="preserve"><span class="lnum">7: </span>            get</pre><pre _xml3a_space="preserve"><span class="lnum">8: </span>            {</pre><pre _xml3a_space="preserve"><span class="lnum">9: </span>                <span class="kwrd">if</span> (MyContext.Session[CaptchaUrlKey] == <span class="kwrd">null</span>)</pre><pre _xml3a_space="preserve"><span class="lnum">10: </span>                    MyContext.Session[CaptchaUrlKey] = String.Format(<span class="str">&quot;/captcha/{0}.ashx&quot;</span>, rand.Next());</pre><pre _xml3a_space="preserve"><span class="lnum">11: </span>                <span class="kwrd">return</span> (<span class="kwrd">string</span>)MyContext.Session[CaptchaUrlKey];</pre><pre _xml3a_space="preserve"><span class="lnum">12: </span>            }</pre><pre _xml3a_space="preserve"><span class="lnum">13: </span>        }</pre><pre _xml3a_space="preserve"><span class="lnum">14: </span> </pre><pre _xml3a_space="preserve"><span class="lnum">15: </span>        <span class="rem">/// <pre>16:         /// Gets the captcha word.</pre><pre>17:         /// </pre></span></pre><pre _xml3a_space="preserve"><span class="lnum">18: </span>        <span class="rem">/// The captcha word.</span></pre><pre _xml3a_space="preserve"><span class="lnum">19: </span>        <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">string</span> CaptchaWord</pre><pre _xml3a_space="preserve"><span class="lnum">20: </span>        {</pre><pre _xml3a_space="preserve"><span class="lnum">21: </span>            get</pre><pre _xml3a_space="preserve"><span class="lnum">22: </span>            {</pre><pre _xml3a_space="preserve"><span class="lnum">23: </span>                <span class="kwrd">if</span> ( MyContext.Session[CaptchaWordKey] == <span class="kwrd">null</span>)</pre><pre _xml3a_space="preserve"><span class="lnum">24: </span>                {</pre><pre _xml3a_space="preserve"><span class="lnum">25: </span>                    <span class="kwrd">string</span> listWords = Settings.User[<span class="str">&quot;CaptchaWords&quot;</span>];</pre><pre _xml3a_space="preserve"><span class="lnum">26: </span>                    var words = listWords.Split(<span class="str">','</span>);</pre><pre _xml3a_space="preserve"><span class="lnum">27: </span>                    MyContext.Session[CaptchaWordKey] = words[rand.Next(words.Length - 1)].Trim();</pre><pre _xml3a_space="preserve"><span class="lnum">28: </span>                }</pre><pre _xml3a_space="preserve"><span class="lnum">29: </span>                <span class="kwrd">return</span> (<span class="kwrd">string</span>)MyContext.Session[CaptchaWordKey];</pre><pre _xml3a_space="preserve"><span class="lnum">30: </span>            }</pre></div>
+<p>When the control is displayed, the image on the control is databound to the CaptchaUrl property; so it will display the image containing the correct word. The request the browser sends for the image will get handled by a separate http handler (which we will discuss in a later post); which will output the generated image.</p>
+<p>On postback, the control will check the text the user has entered, and if it matches the generated word, a public property called &quot;IsValid&quot; will be set to true. This indicates to the control on which our CAPTCHA resides, that the user has passed the CAPTCHA test. After the check, the word and URL is reset, so a new CAPTCHA will be generated if the control is shown again.</p>
+<p>A slightly better approach would be to implement the control as a .NET Validator control, so that it could take part in the page validation along with other validator controls. This would eliminate the need of the other controls on the page being aware of the CAPTCHA. Doing this would not be much more work; one would simply need to inherit from the abstract <a href="http://msdn2.microsoft.com/en-us/library/system.web.ui.webcontrols.basevalidator.aspx" title="BaseValidator docs on MSDN" shape="rect">BaseValidator class</a> and implement the neccessary methods.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

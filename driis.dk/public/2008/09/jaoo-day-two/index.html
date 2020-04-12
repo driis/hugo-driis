@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="JAOO Day Two"/>
+<meta name="twitter:description" content="Today on JAOO has also been packed with interesting talks. I attended these:
+ V8: The Javascript engine inside Google Chrome Keynote by Lars Bak about the all-new javascript engine that was implemented by his team in Århus for Google Chrome. This javascript engine is about 10 times faster than other javascript implementations. Lars explained how this is possible in a very dynamic language like javascript, by creating classes that can be reused; if another object with the same properties is created, which tends to happen often."/>
+
+    <meta property="og:title" content="JAOO Day Two" />
+<meta property="og:description" content="Today on JAOO has also been packed with interesting talks. I attended these:
+ V8: The Javascript engine inside Google Chrome Keynote by Lars Bak about the all-new javascript engine that was implemented by his team in Århus for Google Chrome. This javascript engine is about 10 times faster than other javascript implementations. Lars explained how this is possible in a very dynamic language like javascript, by creating classes that can be reused; if another object with the same properties is created, which tends to happen often." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/09/jaoo-day-two/" />
+<meta property="article:published_time" content="2008-09-30T10:34:00+00:00" />
+<meta property="article:modified_time" content="2008-09-30T10:34:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/09/jaoo-day-two/">
+    
+    <title>
+  JAOO Day Two · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/09/jaoo-day-two/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">JAOO Day Two</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-09-30T10:34:00Z'>
+                September 30, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>Today on JAOO has also been packed with interesting talks. I attended these:</p>
+    <p>
+      <strong>V8: The Javascript engine inside Google Chrome</strong> <br />Keynote by Lars Bak about the all-new javascript engine that was implemented by his team in Århus for Google Chrome. This javascript engine is about 10 times faster than other javascript implementations. Lars explained how this is possible in a very dynamic language like javascript, by creating classes that can be reused; if another object with the same properties is created, which tends to happen often. Optmizations can then be applied to those classes. Furthermore, Chrome compiles the Javascript code to native code so that it can run really fast on any platform. Lars mentioned a few other major improvements, and this was a very inspiring and interesting talk - even though he had some problems with the projector in the beginning.</p>
+    <p>
+      <strong>Failure Comes In Flavours</strong> <br />This talk by Mikael Nygard (who is not danish, by the way, though his name resembles a danish name pretty much) was divided into two sessions. In the first, Mikael talk about anti-patterns that lead to failure - such as depending too hard on third parties, or waiting forever for some external call. This talk featured some "war stories" about failures Mikael had helped to resolve in the past. In the second session, Mikael offered his advice on how to avoid failure and some patterns that can help in this. Though focus was very much on big enterprise SOA systems; the principles can be applied anywhere. I learned a thing or two in this session, that can be applied to my every-day work on web applications in a smaller scale.</p>
+    <p>
+      <strong>Not your Grandfather's Architecture: Taking Architecture into the Agile World</strong> <br />In this talk, James Coplien talked about Agile architecture. He presented his ideas about adding roles as a concept to the object-oriented world of classes and objects. He argued that programs could be made simpler and get rid of polymorphism using his approach; I am not sure that I agree. There was no working code demo, so his ideas is still kind of abstract in my mind.</p>
+    <p>
+      <strong>Successfully applying REST - Integration, Web-style</strong> <br />Stefan Tilkov talked about REST integration; a subject that I find very interesting, since we already use it in projects at work, and are planning to use it even more extensively. Stefan had some very interesting points about REST, and how it can be applied to a SOA world. I really like the clean interface you can make of a REST service, without much of the overhead and scaffolding that is neccessary in SOAP, for instance.</p>
+    <p>
+      <strong>Top Ten Software Architecture Mistakes</strong> <br />This was a talk focusing on what not to do in architecture; so that we can avoid mistakes or bad decisions in our architecture. The talker, Eion Woods, had his list of 10 mistakes and how to avoid them, which was presented with a little bit of humour. At least some of the items is going to be on my list of things to check before beginning development of new projects.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

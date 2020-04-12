@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Stopwatch for Windows Mobile"/>
+<meta name="twitter:description" content="I have got a new mobile phone, a HTC Touch Diamond. Besides the fact that it has a sleek design and is much easier to work with when reading email and browsing the web than my old phone.
+However, that it is not the only reason for buying the Diamond. Another, very important reason, is that it runs Windows Mobile 6.1 - and therefore I can write my own programs for it using pretty much the same toolset as I use for any other ."/>
+
+    <meta property="og:title" content="A Stopwatch for Windows Mobile" />
+<meta property="og:description" content="I have got a new mobile phone, a HTC Touch Diamond. Besides the fact that it has a sleek design and is much easier to work with when reading email and browsing the web than my old phone.
+However, that it is not the only reason for buying the Diamond. Another, very important reason, is that it runs Windows Mobile 6.1 - and therefore I can write my own programs for it using pretty much the same toolset as I use for any other ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/10/a-stopwatch-for-windows-mobile/" />
+<meta property="article:published_time" content="2008-10-26T20:21:00+00:00" />
+<meta property="article:modified_time" content="2008-10-26T20:21:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/10/a-stopwatch-for-windows-mobile/">
+    
+    <title>
+  A Stopwatch for Windows Mobile · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/10/a-stopwatch-for-windows-mobile/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">A Stopwatch for Windows Mobile</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-10-26T20:21:00Z'>
+                October 26, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>I have got a new mobile phone, a <a href="http://www.htc.com/europe/product/touchdiamond/overview.html">HTC Touch Diamond</a>. Besides the fact that it has a sleek design and is much easier to work with when reading email and browsing the web than my old phone.</p>
+    <p>However, that it is not the only reason for buying the Diamond. Another, very important reason, is that it runs Windows Mobile 6.1 - and therefore I can write my own programs for it using pretty much the same toolset as I use for any other .NET program. Granted, there are stuff missing in the Compact Framework compared to the full-blown framework (Expression trees anyone ?), but it is normally quite easy to find alternatives, and the Compact Framework does make it quite easy to program the device.</p>
+    <p>My first application for the Touch is a simple Stopwatch program. I wrote it, because there was no stopwatch and/or timer program on the Touch when I got it, so why not write my own ;-) The application it is quite simple, but I learned quite a deal about the device and the Compact Framework while developing it. It essentially relies on the <a href="http://msdn.microsoft.com/en-us/library/system.environment.tickcount.aspx">Environment.TickCount </a>counter to measure time, so it might not be 100% accurate - but for my needs (such as heating pizza's), it is quite sufficient.</p>
+    <p>If anyone's interested, <a href="~/media/772D64F4CBFA4174B500F6807CA9353E.ashx">you may download the source from here</a>. If you want to compile it, you will need a copy of the <a href="http://www.opennetcf.com/">OpenNET CF Framework</a>, because I needed to use some parts of it for making the phone vibrate when the alarm goes off. (It could be replaced with some P/Invoke calls, but i got lazy ;-) </p>
+    <p>The application itself has the following features:</p>
+    <p>
+    </p>
+    <ul>
+      <li>Simple stopwatch</li>
+      <li>Timer with alert (vibration and sound)</li>
+      <li>Configurable alarm sound (only .wav files, sorry).</li>
+      <li>Settings are remembered (stored in Application Data)</li>
+      <p>
+      </p>
+    </ul>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

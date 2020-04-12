@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Introducing: The Google Chrome Password Recovery Tool"/>
+<meta name="twitter:description" content="Today, I wanted to backup all my passwords stored in Google Chrome. I thought that would be an easy task, but it turns out, that this is not supported, at least as far as I can tell. There is an option to view the shared passwords one-by-one, but that was not really an option for me.
+So,Â I decided to write a small program to extract the passwords from Chrome."/>
+
+    <meta property="og:title" content="Introducing: The Google Chrome Password Recovery Tool" />
+<meta property="og:description" content="Today, I wanted to backup all my passwords stored in Google Chrome. I thought that would be an easy task, but it turns out, that this is not supported, at least as far as I can tell. There is an option to view the shared passwords one-by-one, but that was not really an option for me.
+So,Â I decided to write a small program to extract the passwords from Chrome." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/12/introducing-the-google-chrome-password-recovery-tool/" />
+<meta property="article:published_time" content="2008-12-28T17:42:00+00:00" />
+<meta property="article:modified_time" content="2008-12-28T17:42:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/12/introducing-the-google-chrome-password-recovery-tool/">
+    
+    <title>
+  Introducing: The Google Chrome Password Recovery Tool · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/12/introducing-the-google-chrome-password-recovery-tool/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Introducing: The Google Chrome Password Recovery Tool</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-12-28T17:42:00Z'>
+                December 28, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>Today, I wanted to backup all my passwords stored in Google Chrome. I thought that would be an easy task, but it turns out, that this is not supported, at least as far as I can tell. There is an option to view the shared passwords one-by-one, but that was not really an option for me.</p>
+    <p>So,Â I decided to write a small program to extract the passwords from Chrome. Since Chrome (or Chromium, to be exact), is open source, I pulled the source from <a href="http://dev.chromium.org/getting-involved">http://dev.chromium.org/getting-involved</a>, compiled it, and starting looking around trying to figure out how passwords are stored. The setup and build experience was much nicer than what I have tried with other open source projects I have looked at; there are detailed build instructions with only a few steps available, and after setting up, it just works, in a Visual Studio 2008 solution. A full recompile does take some time however (45 minutes on my machine).</p>
+    <p>I quickly found out that Chrome stores most of its user and configuration data in small SQLite databases stored on disk in the AppData/Local/Google/Chrome/User Data directory. So, reading the data was no problem after grabbing a copy of the <a href="http://sourceforge.net/projects/sqlite-dotnet2">ADO .NET Provider for SQLite</a>, as well as the sqlite3.dll binary from <a href="http://www.sqlite.org/">http://www.sqlite.org/</a>. The data I was after (user names and passwords) is stored in the file named <strong>Web Data</strong>. This contains a table named <strong>logins</strong>, which contains the URL for which the login is valid, some details about the html form where the password has been used (in order to allow Chrome to auto-fill password boxes for you), and the username and password. It also contains a "preferred" and "blacklisted_by_user" column. </p>
+    <p>
+      <strong>
+        <span style="FONT-SIZE: 14pt">Decrypting the passwords</span> </strong>
+    </p>
+    <p>The passwords is, obviously for security reasons, not stored in plain text. Rather, they are encrypted, so I needed to figure out how they are encrypted and how to decrypt them. The answer lies in the Chromium source, where the Encryptor class contains the following method:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <pre class="csharpcode"><span class="kwrd">bool</span> Encryptor::EncryptString(<span class="kwrd">const</span> std::<span class="kwrd">string</span>&amp; plaintext,
+                              std::<span class="kwrd">string</span>* ciphertext) {
+  DATA_BLOB input;
+  input.pbData = const_cast&lt;BYTE*&gt;(
+    reinterpret_cast&lt;<span class="kwrd">const</span> BYTE*&gt;(plaintext.data()));
+  input.cbData = static_cast&lt;DWORD&gt;(plaintext.length());
+
+  DATA_BLOB output;
+  BOOL result = CryptProtectData(&amp;input, L<span class="str">""</span>, NULL, NULL, NULL,
+                                 0, &amp;output);
+  <span class="kwrd">if</span> (!result)
+    <span class="kwrd">return</span> <span class="kwrd">false</span>;
+
+  <span class="rem">// this does a copy</span>
+  ciphertext-&gt;assign(reinterpret_cast&lt;std::<span class="kwrd">string</span>::value_type*&gt;(output.pbData),
+                     output.cbData);
+
+  LocalFree(output.pbData);
+  <span class="kwrd">return</span> <span class="kwrd">true</span>;
+}</pre>
+    <p>As it turns out,Â the <a title="DPAPI on MSDN" target="_blank" href="http://msdn.microsoft.com/en-us/library/ms995355.aspx">Windows Data Protection (DPAPI)</a>Â is used to encrypt the data, namely the CryptProtectData function as shown above. Therefore, I can relatively easy decrypt the data, using the <a title="CryptUnprotectData on MSDN" target="_blank" href="http://msdn.microsoft.com/en-us/library/aa380882.aspx">CryptUnprotectData</a> function, as long as I do not try to decrypt the password of other users - the DPAPI encrypts with a key based on the current user's login credentials. I first tried to do the decrypting in C# using P/Invoke the the CryptUnprotect function, but for some reason, I could not get that to work. I kept getting a credentials dialog from Windows when trying it, which is not what i want. Luckily, after googling a bit, I found out that there already exist a managed wrapper for doing this, namely the <a title="ProtectedData on MSDN" target="_blank" href="http://msdn.microsoft.com/en-us/library/system.security.cryptography.protecteddata.aspx">ProtectedData</a>Â class. After switching to using this, there were no problems decrypting the passwords.</p>
+    <p>
+      <strong>
+        <span style="FONT-SIZE: 14pt">The password recovery tool</span> </strong>
+    </p>
+    <p>I wrote a tiny C# console program to dump the passwords. They can be dumped to the console (default) or to an XML file. Running the program without parameters will try to dump all the passwords to the console. You might need to have Chrome closed while doing this. Run the program with the -help switch to display a short usage information message.</p>
+    <p>I am including the program for download here - both in a precompiled form and the C# source. It requires .NET Framework 3.5. The program as well as it's source is free for use non-commercially and is provided without any warranty or obligations for me, neither explicit or implied. It probably won't kill your cat, but don't come to me crying about it if it does ;-). If you wish to use the source or derivate thereof in a commercial product, contact me for permission first.</p>
+    <p>
+      <strong>
+        <span style="FONT-SIZE: 14pt">Download:</span> </strong>
+    </p>
+    <ul>
+      <li>
+        <a href="~/media/B07CCDB309B14456B1DF8DE9DE0025AA.ashx">ChromePasswordRecover (binary package - unzip and run cprecover.exe in a console window)</a> <a href="~/media/358B8B553CCE4E88B3788338E4FE787E.ashx"></a></li>
+      <li>
+        <a href="~/media/358B8B553CCE4E88B3788338E4FE787E.ashx">ChromePasswordRecover - C# source.</a> </li>
+    </ul>
+    <p>
+      <strong>
+        <span style="FONT-SIZE: 14pt">What is missing ?</span> <br /></strong>It would be nice to have an option to import the exported passwords into a new Chrome installation on another computer. I am considering adding it, but don't really need it at this time. It should be relatively easy - if you happen to develop the feature based on my work, please email me the source.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

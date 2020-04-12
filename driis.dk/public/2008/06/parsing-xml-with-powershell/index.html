@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Parsing XML with PowerShell"/>
+<meta name="twitter:description" content="I&#39;m addicted to PowerShell. This cool scripting environment is simple to use, and with very few lines of script; it is possible to accomplish tasks that otherwise often would be a lot of tedious work. (If we didn&#39;t have PowerShell, I would propably wip up a C# program to do the same, but PowerShell is really lightweight, is interactive and is generally very forgiving for small tasks where you just &#34;"/>
+
+    <meta property="og:title" content="Parsing XML with PowerShell" />
+<meta property="og:description" content="I&#39;m addicted to PowerShell. This cool scripting environment is simple to use, and with very few lines of script; it is possible to accomplish tasks that otherwise often would be a lot of tedious work. (If we didn&#39;t have PowerShell, I would propably wip up a C# program to do the same, but PowerShell is really lightweight, is interactive and is generally very forgiving for small tasks where you just &#34;" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/06/parsing-xml-with-powershell/" />
+<meta property="article:published_time" content="2008-06-15T18:02:09+00:00" />
+<meta property="article:modified_time" content="2008-06-15T18:02:09+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/06/parsing-xml-with-powershell/">
+    
+    <title>
+  Parsing XML with PowerShell · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/06/parsing-xml-with-powershell/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Parsing XML with PowerShell</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-06-15T18:02:09Z'>
+                June 15, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>I'm addicted to <a title="Windows PowerShell" href="http://www.microsoft.com/windowsserver2003/technologies/management/powershell/default.mspx">PowerShell</a>. This cool scripting environment is simple to use, and with very few lines of script; it is possible to accomplish tasks that otherwise often would be a lot of tedious work. (If we didn't have PowerShell, I would propably wip up a C# program to do the same, but PowerShell is really lightweight, is interactive and is generally very forgiving for small tasks where you just "want the job done".</p>
+<p>As an example, today I needed to look at a log files generated by Visual Studio to figure out why the environment wouldn't start on my home PC. As it turns out, these log files are actually XML files. Of course I could have just started reading through the XML, but all the angle brackets confuses my brain; when I'm actually mostly interested in the text content of the log file.</p>
+<p>So, five minutes later, this 3-line script; parse-vslog.ps1 was born:<!-- code formatted by http://manoli.net/csharpformat/ --></p>
+<div class="csharpcode"><pre class="alt"><span class="lnum">1: </span><span class="kwrd">param</span>( [string]$file = $(<span class="kwrd">throw</span> <span class="str">"required parameter"</span> ) )</pre><pre><span class="lnum">2: </span>$log = [xml](get-content $file)</pre><pre class="alt"><span class="lnum">3: </span>$log.activity.entry | select record,type,description | format-table -wrap -auto</pre></div>
+<p>
+<p>This is what happens in the script:</p>
+<p>On line 1, we declare that we need a $file parameter (variables and parameters is prefixed with $ in PowerShell), that should be required. </p>
+<p>On line 2 we use the <em>get-content </em>cmdlet to get the contents of a file. PowerShell has a lot of XML helping features, one of which is the ability to "cast" the content to XML using the<em> [xml] </em>construct. What really happens behind the scenes, is that PowerShell instantiates an XmlDocument and loads the text content of the file in that.</p>
+<p>Last, on line 3, we take advantage of the fact that PowerShell let's us select XML nodes by using simple dotted notation. Here we are interested in all the the /activity/entry nodes. We pass the result along the pipeline and selects the 3 most important values using the <em>select </em>cmdlet. And, lastly, we format the output nicely with <em>format-table, </em>specifying that we would like the cmdlet to auto-select the column widths (-auto) and that text output should be wrapped on multiple lines (-wrap).</p>
+<p>So insted of having to look at XML that goes on like this:</p>
+<p><!-- code formatted by http://manoli.net/csharpformat/ --></p>
+<div class="csharpcode"><pre class="alt"><span class="lnum">1: </span><span class="kwrd"><span class="html">xml-stylesheet</span> <span class="attr">type</span><span class="kwrd">="text/xsl"</span> <span class="attr">href</span><span class="kwrd">="ActivityLog.xsl"</span>?<span class="kwrd">&gt;</span><pre><span class="lnum">2: </span><span class="kwrd"></span><span class="html">activity</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">3: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">4: </span>    <span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span>1<span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">5: </span>    <span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span>2008/06/15 15:44:18.220<span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">6: </span>    <span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span>Information<span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">7: </span>    <span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span>Microsoft Visual Studio<span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">8: </span>    <span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span>Visual Studio Version: 9.0.21022.8<span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">9: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">10: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">11: </span>    <span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span>2<span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">12: </span>    <span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span>2008/06/15 15:44:18.221<span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">13: </span>    <span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span>Information<span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">14: </span>    <span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span>Microsoft Visual Studio<span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">15: </span>    <span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span>Running in User Groups: Administrators Users<span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">16: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">17: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">18: </span>    <span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span>3<span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">19: </span>    <span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span>2008/06/15 15:44:18.221<span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">20: </span>    <span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span>Information<span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">21: </span>    <span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span>Microsoft Visual Studio<span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">22: </span>    <span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span>ProductID: 91904-270-0003722-60402<span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">23: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">24: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">25: </span>    <span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span>19<span class="kwrd"></span><span class="html">record</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">26: </span>    <span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span>2008/06/15 15:44:19.094<span class="kwrd"></span><span class="html">time</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">27: </span>    <span class="kwrd"></span><span class="html">type</span><span class="kwrd">&gt;</span><span class="html">type</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">28: </span>    <span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span>Microsoft Visual Studio<span class="kwrd"></span><span class="html">source</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">29: </span>    <span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span>Destroying Main Window<span class="kwrd"></span><span class="html">description</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">30: </span>  <span class="kwrd"></span><span class="html">entry</span><span class="kwrd">&gt;</span></pre><pre class="alt"><span class="lnum">31: </span><span class="kwrd"></span><span class="html">activity</span><span class="kwrd">&gt;</span></pre><pre><span class="lnum">32: </span> </pre></span></pre></div>
+<p>
+<p>Now, I can get this much nicer output in the console (note that the XML above has been shortened for the blog. It was actually around 150 lines):</p>
+<p><pre>record type        description
+------ ----        -----------
+1      Information Visual Studio Version: 9.0.21022.8
+2      Information Running in User Groups: Administrators Users
+3      Information ProductID: 91904-270-0003722-60402
+4      Information Available Drive Space: C:\ drive has 42128211968 bytes; D:\ drive has 38531145728 bytes; E:\ drive h
+                   as 127050969088 bytes; F:\ drive has 117087354880 bytes
+5      Information Internet Explorer Version: 7.0.6001.18063
+6      Information Microsoft Data Access Version: 6.0.6001.18000
+7      Information .NET Framework Version: 2.0.50727.1434
+8      Information MSXML Version: 6.20.1076.0
+9      Information Loading UI library
+10     Information Entering function CVsPackageInfo::HrInstantiatePackage
+11     Information Begin package load [Visual Studio Source Control Integration Package]
+12     Information Entering function CVsPackageInfo::HrInstantiatePackage
+13     Information Begin package load [team foundation server provider stub package]
+14     Information End package load [team foundation server provider stub package]
+15     Information End package load [Visual Studio Source Control Integration Package]
+16     Information Entering function VBDispatch::GetTypeLib
+17     Information Entering function LoadDTETypeLib
+18     Error       Leaving function LoadDTETypeLib
+19                 Destroying Main Window
+</pre>  
+<p>
+<p>I think this is a good representative of the strength of PowerShell. Using only a few lines of script and a minimum of time, I created a reusable script, that will probaply save a lot of time in the future.</p></p></p></p></p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

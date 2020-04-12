@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Setting up BlogEngine.NET"/>
+<meta name="twitter:description" content="After deciding to get this blog, I needed to find some software to run it on. I briefly considered writing it myself, but decided that it would be too much effort, and that I probably never would be able to finish it, considering work and other projects. So I started hunting around for some open source blogging software, and after an hour of googling, I decided on BlogEngine.NET. My main considerations where that it needed to be open source ."/>
+
+    <meta property="og:title" content="Setting up BlogEngine.NET" />
+<meta property="og:description" content="After deciding to get this blog, I needed to find some software to run it on. I briefly considered writing it myself, but decided that it would be too much effort, and that I probably never would be able to finish it, considering work and other projects. So I started hunting around for some open source blogging software, and after an hour of googling, I decided on BlogEngine.NET. My main considerations where that it needed to be open source ." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2007/07/setting-up-blogengine.net/" />
+<meta property="article:published_time" content="2007-07-09T21:33:43+00:00" />
+<meta property="article:modified_time" content="2007-07-09T21:33:43+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2007/07/setting-up-blogengine.net/">
+    
+    <title>
+  Setting up BlogEngine.NET · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2007/07/setting-up-blogengine.net/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Setting up BlogEngine.NET</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2007-07-09T21:33:43Z'>
+                July 9, 2007
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        		<p>After deciding to get this blog, I needed to find some software to run it on. I briefly considered writing it myself, but decided that it would be too much effort, and that I probably never would be able to finish it, considering work and other projects. </p>
+<p>So I started hunting around for some open source blogging software, and after an hour of googling, I decided on <a title="BlogEngine.NET" href="http://www.dotnetblogengine.net/" target="_blank">BlogEngine.NET</a>. My main considerations where that it needed to be open source .NET (so I can fix stuff if it breaks), highly customizable and easy to extend. It was also important that it would work without a database, since my current web host only provides access to a sluggish and unreliable MySQL server (but hey, it's cheap ;-) </p>
+<p>I also considered <a title="dasBlog" href="http://www.dasblog.info/" target="_blank">dasBlog</a>, but <a title="BlogEngine.NET" href="http://www.dotnetblogengine.net/" target="_blank">BlogEngine.NET</a> seemed simpler and more suitable for my simple needs.&nbsp; </p>
+<p>Setting stuff up was simpler than expected.&nbsp; <a title="BlogEngine.NET" href="http://www.dotnetblogengine.net/" target="_blank">BlogEngine.NET</a> target audience is developers, according to their web page, so I was prepared to be hand-editing a myriad of obscure configuration files - But after downloading the source and creating a virtual directory on my local machine for the application, it just ran. I actually started editing the settings.xml file before I found out that a UI was provided for it. So i customized some settings, and did a bit of changes to one of the default templates, before I was ready to go online. I actually think that setting it up for debugging in Visual Studio took longer than the actual customizations (My home machine runs Vista, and I had some problems with ASP .NET and IIS7, which I was able to resolve by using the "Classic ASP.NET pipelining" mode). </p>
+<p>I downloaded the source, so that I could try to compile it for myself and poke a bit around, before ultimately deciding to base my blog on this application. I haven't spent too much time looking at the code, but it seems to be well designed and thought-through. </p>
+<p>Anyways, uploading the site via FTP to my web host was no problem. I used Visual Studio to make a precompiled copy of the web site first. </p>
+<p>Setting up the blog, customizing it and publishing it took less than 2 hours. I did not get stuck at all, and everything behaved as expected; overall it was a nice experience. So thumbs up to the <a title="BlogEngine.NET" href="http://www.dotnetblogengine.net/" target="_blank">BlogEngine.NET</a> developers ! </p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Using Expression Trees To Break The Law Of Demeter"/>
+<meta name="twitter:description" content="I am sure most programmers have heard about the Law Of Demeter, which is the principle that a classshould only have limited knowledge about other classes, and only talk to objects closely related to the current object. This is sometimes presented as &#34;you should not have more than one dot in each expression&#34;. In other words, this would be breaking the law: 
+string name = order.Customer.Name; While I do appreciate the idea behind the Law Of Demeter, specifically that individual classes should not know too much about each other; I think the above code would often be perfectly acceptable."/>
+
+    <meta property="og:title" content="Using Expression Trees To Break The Law Of Demeter" />
+<meta property="og:description" content="I am sure most programmers have heard about the Law Of Demeter, which is the principle that a classshould only have limited knowledge about other classes, and only talk to objects closely related to the current object. This is sometimes presented as &#34;you should not have more than one dot in each expression&#34;. In other words, this would be breaking the law: 
+string name = order.Customer.Name; While I do appreciate the idea behind the Law Of Demeter, specifically that individual classes should not know too much about each other; I think the above code would often be perfectly acceptable." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2010/01/using-expression-trees-to-break-the-law-of-demeter/" />
+<meta property="article:published_time" content="2010-01-17T18:47:00+00:00" />
+<meta property="article:modified_time" content="2010-01-17T18:47:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2010/01/using-expression-trees-to-break-the-law-of-demeter/">
+    
+    <title>
+  Using Expression Trees To Break The Law Of Demeter · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2010/01/using-expression-trees-to-break-the-law-of-demeter/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Using Expression Trees To Break The Law Of Demeter</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2010-01-17T18:47:00Z'>
+                January 17, 2010
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        I am sure most programmers have heard about the <a title="Law Of Demeter on Wikipedia" href="http://en.wikipedia.org/wiki/Law_of_Demeter" target="ext">Law Of Demeter</a>, which is the principle that a classshould only have limited knowledge about other classes, and only talk to objects closely related to the current object. This is sometimes presented as "you should not have more than one dot in each expression". In other words, this would be breaking the law: <p></p><pre class="csharpcode"><span class="kwrd"><br />string</span> name = order.Customer.Name;</pre><p>  </p><p>While I do appreciate the idea behind the Law Of Demeter, specifically that individual classes should not know too much about each other; I think the above code would often be perfectly acceptable. <a title="Phil Haack's blog" href="http://haacked.com/" target="ext">Phil Haack</a> has a blogpost going into further details about this: <a title="Phil Haack on the Law of Demeter" href="http://haacked.com/archive/2009/07/14/law-of-demeter-dot-counting.aspx" target="ext">The Law of Demeter Is Not A Dot Counting Excercise</a>, and <a title="Dan Mange on the Law of Demeter" href="http://www.dcmanges.com/blog/37" target="ext">others agree</a>. <span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: DA">I think Martin Fowler explains it best: "<a title="Martin Fowler quote" href="http://twitter.com/martinfowler/status/1649793241" target="ext">I'd prefer to call it the Occasional Useful Suggestion of Demeter</a></span><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: DA">". <p></p></span></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p style="LINE-HEIGHT: normal; MARGIN: 0cm 0cm 10pt; mso-margin-top-alt: auto; mso-margin-bottom-alt: auto" class="MsoNormal"><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: DA">So, most of us will probably (hopefully) agree, that it is OK to use more than one dot in a statement, when appropiate. One such place might be when doing UI in a ASP .NET application, and one needs to display information about an order and it's details. But here arises a problem, we will need to check each of the expression parts for null to ensure that we do not accidentally cause a NullReferenceException. This leads to ugly code, especially in a data-binding scenario, such as: <p></p></span></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p><pre class="csharpcode">&lt;%# order == <span class="kwrd">null</span> ? <span class="kwrd">null</span> : order.Customer == <span class="kwrd">null</span> ? <span class="kwrd">null</span> : order.Customer.Name %&gt;</pre><p> </p><p><a title="Stackoverflow question about Deep Null Checking" href="http://stackoverflow.com/questions/2080647/deep-null-checking-is-there-a-better-way" target="ext">This question on StackOverflow</a> asks about exactly that, how do we get rid of such explicit and repeated null checking ? It got me thinking, it must be possible to solve this using expression trees. It turns out, it is in fact possible, as I state in <a title="StackOverflow answer" href="http://stackoverflow.com/questions/2080647/deep-null-checking-is-there-a-better-way/2081942#2081942" target="ext">my answer on StackOverflow</a>. We can in fact build an extension methods, which looks at an expression tree, evaluates each part of it seperately, checks for null each time, and ultimately returns the correct value; or null if one of the expression parts where null. This is my implementation of such a method:</p><!-- code formatted by http://manoli.net/csharpformat/ --><div class="csharpcode"><pre class="alt"><span class="lnum"> 1: </span><span class="kwrd">using</span> System;</pre><pre><span class="lnum"> 2: </span><span class="kwrd">using</span> System.Collections.Generic;</pre><pre class="alt"><span class="lnum"> 3: </span><span class="kwrd">using</span> System.Linq.Expressions;</pre><pre><span class="lnum"> 4: </span> </pre><pre class="alt"><span class="lnum"> 5: </span><span class="kwrd">namespace</span> dr.IfNotNullOperator.PoC</pre><pre><span class="lnum"> 6: </span>{</pre><pre class="alt"><span class="lnum"> 7: </span>    <span class="kwrd">public</span> <span class="kwrd">static</span> <span class="kwrd">class</span> ObjectExtensions</pre><pre><span class="lnum"> 8: </span>    {</pre><pre class="alt"><span class="lnum"> 9: </span>        <span class="kwrd">public</span> <span class="kwrd">static</span> TResult IfNotNull&lt;TArg,TResult&gt;(<span class="kwrd">this</span> TArg arg, Expression&lt;Func&lt;TArg,TResult&gt;&gt; expression)</pre><pre><span class="lnum"> 10: </span>        {</pre><pre class="alt"><span class="lnum"> 11: </span>            <span class="kwrd">if</span> (expression == <span class="kwrd">null</span>)</pre><pre><span class="lnum"> 12: </span>                <span class="kwrd">throw</span> <span class="kwrd">new</span> ArgumentNullException(<span class="str">"expression"</span>);</pre><pre class="alt"><span class="lnum"> 13: </span> </pre><pre><span class="lnum"> 14: </span>            <span class="kwrd">if</span> (ReferenceEquals(arg, <span class="kwrd">null</span>))</pre><pre class="alt"><span class="lnum"> 15: </span>                <span class="kwrd">return</span> <span class="kwrd">default</span>(TResult);</pre><pre><span class="lnum"> 16: </span> </pre><pre class="alt"><span class="lnum"> 17: </span>            var stack = <span class="kwrd">new</span> Stack&lt;MemberExpression&gt;();</pre><pre><span class="lnum"> 18: </span>            var expr = expression.Body <span class="kwrd">as</span> MemberExpression;</pre><pre class="alt"><span class="lnum"> 19: </span>            <span class="kwrd">while</span>(expr != <span class="kwrd">null</span>)</pre><pre><span class="lnum"> 20: </span>            {</pre><pre class="alt"><span class="lnum"> 21: </span>                stack.Push(expr);</pre><pre><span class="lnum"> 22: </span>                expr = expr.Expression <span class="kwrd">as</span> MemberExpression;</pre><pre class="alt"><span class="lnum"> 23: </span>            } </pre><pre><span class="lnum"> 24: </span> </pre><pre class="alt"><span class="lnum"> 25: </span>            <span class="kwrd">if</span> (stack.Count == 0 || !(stack.Peek().Expression <span class="kwrd">is</span> ParameterExpression))</pre><pre><span class="lnum"> 26: </span>                <span class="kwrd">throw</span> <span class="kwrd">new</span> ApplicationException(String.Format(<span class="str">"The expression '{0}' contains unsupported constructs."</span>,</pre><pre class="alt"><span class="lnum"> 27: </span>                                                             expression));</pre><pre><span class="lnum"> 28: </span>            </pre><pre class="alt"><span class="lnum"> 29: </span>            <span class="kwrd">object</span> a = arg;</pre><pre><span class="lnum"> 30: </span>            <span class="kwrd">while</span>(stack.Count &gt; 0)</pre><pre class="alt"><span class="lnum"> 31: </span>            {</pre><pre><span class="lnum"> 32: </span>                expr = stack.Pop();</pre><pre class="alt"><span class="lnum"> 33: </span>                var p = expr.Expression <span class="kwrd">as</span> ParameterExpression;</pre><pre><span class="lnum"> 34: </span>                <span class="kwrd">if</span> (p == <span class="kwrd">null</span>)</pre><pre class="alt"><span class="lnum"> 35: </span>                {</pre><pre><span class="lnum"> 36: </span>                    p = Expression.Parameter(a.GetType(), <span class="str">"x"</span>);</pre><pre class="alt"><span class="lnum"> 37: </span>                    expr = expr.Update(p);</pre><pre><span class="lnum"> 38: </span>                }</pre><pre class="alt"><span class="lnum"> 39: </span>                var lambda = Expression.Lambda(expr, p);</pre><pre><span class="lnum"> 40: </span>                Delegate t = lambda.Compile();                </pre><pre class="alt"><span class="lnum"> 41: </span>                a = t.DynamicInvoke(a);</pre><pre><span class="lnum"> 42: </span>                <span class="kwrd">if</span> (ReferenceEquals(a, <span class="kwrd">null</span>))</pre><pre class="alt"><span class="lnum"> 43: </span>                    <span class="kwrd">return</span> <span class="kwrd">default</span>(TResult);</pre><pre><span class="lnum"> 44: </span>            }</pre><pre class="alt"><span class="lnum"> 45: </span> </pre><pre><span class="lnum"> 46: </span>            <span class="kwrd">return</span> (TResult)a;            </pre><pre class="alt"><span class="lnum"> 47: </span>        }</pre><pre><span class="lnum"> 48: </span>    }</pre><pre class="alt"><span class="lnum"> 49: </span>}</pre></div><p>There are some caveats though, in the current version it will only work with simple member access, and it only works on .NET Framework 4, because it uses the MemberExpression.Update method, which is new in v4. </p><div></div><p></p><p></p><p></p><p style="MARGIN: 0cm 0cm 12pt; VERTICAL-ALIGN: baseline; background-origin: initial; background-clip: initial"><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-ansi-language: EN-US">It works by examining the expression tree representing your expression, and evaluating the parts one after the other; each time checking that the result is not null. <p></p></span></p><p></p><p></p><p></p><p style="MARGIN: 0cm 0cm 12pt; VERTICAL-ALIGN: baseline; background-origin: initial; background-clip: initial"><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-ansi-language: EN-US">I am sure this could be extended so that other expressions than MemberExpression is supported, and I might update it at a later point to support more complicated expressions. Consider this as proof-of-concept code, and please keep in mind that there will be a performance penalty by using it (which will probably not matter in many cases, but don't use it in a tight loop :-) ). I have not done any measurements on the performance yet, and I am also sure that one could make some optimizations to it. <p></p></span></p><p></p><p></p><p></p><p><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-ansi-language: EN-US">Here is a zip containing the code as well as a few unit tests: </span><span style="FONT-FAMILY: 'Tahoma','sans-serif'"><a title="Download (from MediaFire)" href="http://www.mediafire.com/?h2zktzd2mmd" target="ext"><span style="mso-ansi-language: EN-US"><span style="COLOR: #0000ff">IfNotNullExtension.zip</span></span></a></span><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-ansi-language: EN-US">. <p></p></span></p><p></p><p></p><p></p><p><span style="FONT-FAMILY: 'Tahoma','sans-serif'; mso-ansi-language: EN-US">What do you think about this approach to null checking ? Would you consider this extension method useful (provided that it performs adequately for the scenario) ? <p></p></span></p><p></p><p></p><p></p><p></p><p></p><p></p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

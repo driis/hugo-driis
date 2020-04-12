@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="A Relative Path Facility For Castle Windsor"/>
+<meta name="twitter:description" content="At work, we use Castle Windsor for Dependency Injection. In Castle Windsor, as with any dependency injection framework, you can configure components identified by an interface, that can be resolved at runtime using the dependency injection framework. Components can have dependencies, which can be yet other components and so on. In this way, you can have your dependency injection framework create a whole graph of objects for you.
+One limitation we run into now and then, is with components, that depend on a file path to work."/>
+
+    <meta property="og:title" content="A Relative Path Facility For Castle Windsor" />
+<meta property="og:description" content="At work, we use Castle Windsor for Dependency Injection. In Castle Windsor, as with any dependency injection framework, you can configure components identified by an interface, that can be resolved at runtime using the dependency injection framework. Components can have dependencies, which can be yet other components and so on. In this way, you can have your dependency injection framework create a whole graph of objects for you.
+One limitation we run into now and then, is with components, that depend on a file path to work." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2010/02/a-relative-path-facility-for-castle-windsor/" />
+<meta property="article:published_time" content="2010-02-22T22:25:00+00:00" />
+<meta property="article:modified_time" content="2010-02-22T22:25:00+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2010/02/a-relative-path-facility-for-castle-windsor/">
+    
+    <title>
+  A Relative Path Facility For Castle Windsor · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2010/02/a-relative-path-facility-for-castle-windsor/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">A Relative Path Facility For Castle Windsor</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2010-02-22T22:25:00Z'>
+                February 22, 2010
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        
+		<p>At work, we use <a title="Castle Project" href="http://www.castleproject.org/container/index.html" target="_blank">Castle Windsor</a> for <a title="DI on Wikipedia" href="http://en.wikipedia.org/wiki/Dependency_injection" target="_blank">Dependency Injection</a>. In Castle Windsor, as with any dependency injection framework, you can configure components identified by an interface, that can be resolved at runtime using the dependency injection framework. Components can have dependencies, which can be yet other components and so on. In this way, you can have your dependency injection framework create a whole graph of objects for you.</p>
+    <p>One limitation we run into now and then, is with components, that depend on a file path to work. Typically, we need to know the full path of the file to load it. But hardcoding the full path in the configuration file is generally a bad idea, it will create problems when you move your web application between environments. Also, we cannot just pass the path as a virtual path to the component and then have the component call Server.MapPath to map the path - since that would mean changing the interface of the component just to accomodate the injection framework, which is not a good idea. And, what is worse, you would create a dependency on System.Web in a place where it probably isn't needed.</p>
+    <p>Now, one way to get around this would be to create a wrapper interface, IFilePath, which only should exist in order to be passed into the component and being able to convert the path. This also involves changing the component and generally feels like a bad idea.</p>
+    <p>Luckily, the Windsor IoC container offers a large variety of extension points - one being <a href="http://www.castleproject.org/container/documentation/trunk/concepts/facility.html">facilities</a>. So I wrote a facility, that allows paths configured in Castle Windsor to be relative. The way this works is by registering an <em>ISubDependencyResolver </em>in the <em>IKernel </em>instance. When resolving a dependency, Windsor will ask the <em>ISubDependencyResolver </em>whether it can resolve the dependency using the <em>CanResolve </em>method. By examining the passed ComponentModel and in particular it's configuration node, I look for a custom attribute on the dependency, pathType. If found (and the dependency is of type string), then we can easily resolve the dependency by taking the relative path in the configuration tag and making it absolute.</p>
+    <p>This will allow you to have your Windsor configuration look like this (notice the one-line facility registration - this is what registers the custom facility in Windsor, and makes us able to register the <em>path </em>dependency as a virtual path):</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre class="alt">        <span class="lnum"> 1: </span>  <span class="kwrd">&lt;</span><span class="html">castle</span><span class="kwrd">&gt;</span></pre>
+      <pre>        <span class="lnum"> 2: </span>    <span class="kwrd">&lt;</span><span class="html">facilities</span><span class="kwrd">&gt;</span></pre>
+      <pre class="alt">        <span class="lnum"> 3: </span>      <span class="kwrd">&lt;</span><span class="html">facility</span> <span class="attr">id</span><span class="kwrd">="pathResolver"</span> <span class="attr">type</span><span class="kwrd">="dr.Castle.WebPathFacility.RelativePathSupportFacility, dr.Castle.WebPathFacility"</span> <span class="kwrd">/&gt;</span></pre>
+      <pre>        <span class="lnum"> 4: </span>    <span class="kwrd">&lt;/</span><span class="html">facilities</span><span class="kwrd">&gt;</span></pre>
+      <pre class="alt">        <span class="lnum"> 5: </span>    <span class="kwrd">&lt;</span><span class="html">components</span><span class="kwrd">&gt;</span></pre>
+      <pre>        <span class="lnum"> 6: </span>      <span class="kwrd">&lt;</span><span class="html">component</span> <span class="attr">id</span><span class="kwrd">="dummy"</span></pre>
+      <pre class="alt">        <span class="lnum"> 7: </span>                 <span class="attr">service</span><span class="kwrd">="dr.Castle.WebPathFacility.Test.IDummy, dr.Castle.WebPathFacility.Test"</span></pre>
+      <pre>        <span class="lnum"> 8: </span>                 <span class="attr">type</span><span class="kwrd">="dr.Castle.WebPathFacility.Test.Dummy, dr.Castle.WebPathFacility.Test"</span> <span class="kwrd">&gt;</span></pre>
+      <pre class="alt">        <span class="lnum"> 9: </span>        <span class="kwrd">&lt;</span><span class="html">parameters</span><span class="kwrd">&gt;</span></pre>
+      <pre>        <span class="lnum"> 10: </span>          <span class="kwrd">&lt;</span><span class="html">path</span> <span class="attr">pathType</span><span class="kwrd">="Relative"</span><span class="kwrd">&gt;</span>App_Data/test.xml<span class="kwrd">&lt;/</span><span class="html">path</span><span class="kwrd">&gt;</span></pre>
+      <pre class="alt">        <span class="lnum"> 11: </span>        <span class="kwrd">&lt;/</span><span class="html">parameters</span><span class="kwrd">&gt;</span></pre>
+      <pre>        <span class="lnum"> 12: </span>      <span class="kwrd">&lt;/</span><span class="html">component</span><span class="kwrd">&gt;</span></pre>
+      <pre class="alt">        <span class="lnum"> 13: </span>    <span class="kwrd">&lt;/</span><span class="html">components</span><span class="kwrd">&gt;</span></pre>
+      <pre>        <span class="lnum"> 14: </span>  <span class="kwrd">&lt;/</span><span class="html">castle</span><span class="kwrd">&gt;</span></pre>
+      <pre> </pre>
+    </div>
+    <p>The valid values for pathType are: </p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre class="alt">
+        <span class="lnum"> 1: </span>        <span class="kwrd">private</span> <span class="kwrd">enum</span> PathType</pre>
+      <pre>
+        <span class="lnum"> 2: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 3: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 4: </span>            <span class="rem">/// The path is absolute (we will do nothing to it).</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 5: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 6: </span>            Absolute = 0,</pre>
+      <pre class="alt">
+        <span class="lnum"> 7: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 8: </span>            <span class="rem">/// The path is a virtual path to a web application resource.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 9: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 10: </span>            Virtual,</pre>
+      <pre class="alt">
+        <span class="lnum"> 11: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 12: </span>            <span class="rem">/// The path is relative to the current directory.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 13: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 14: </span>            Relative</pre>
+      <pre class="alt">
+        <span class="lnum"> 15: </span>        }</pre>
+    </div>
+    <p>The code for the facility it self is really simple, since it simply registers our dependency resolver to the Kernel. The advantage of using a facility, is that it can be declared in the config, and Windsor will automatically initialize for all containers you create: </p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre class="alt">
+        <span class="lnum"> 1: </span>
+        <span class="kwrd">using</span> Castle.MicroKernel.Facilities;</pre>
+      <pre>
+        <span class="lnum"> 2: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 3: </span>
+        <span class="kwrd">namespace</span> dr.Castle.WebPathFacility</pre>
+      <pre>
+        <span class="lnum"> 4: </span>{</pre>
+      <pre class="alt">
+        <span class="lnum"> 5: </span>    <span class="kwrd">public</span> <span class="kwrd">class</span> RelativePathSupportFacility : AbstractFacility</pre>
+      <pre>
+        <span class="lnum"> 6: </span>    {</pre>
+      <pre class="alt">
+        <span class="lnum"> 7: </span>        <span class="kwrd">protected</span> <span class="kwrd">override</span> <span class="kwrd">void</span> Init()</pre>
+      <pre>
+        <span class="lnum"> 8: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 9: </span>            Kernel.Resolver.AddSubResolver(<span class="kwrd">new</span> PathParameterDependencyResolver());            </pre>
+      <pre>
+        <span class="lnum"> 10: </span>        }</pre>
+      <pre class="alt">
+        <span class="lnum"> 11: </span>    }</pre>
+      <pre>
+        <span class="lnum"> 12: </span>}</pre>
+    </div>
+    <p>Finally, the implementation of ISubDependencyResolver, that makes this possible:</p>
+    <!-- code formatted by http://manoli.net/csharpformat/ -->
+    <div class="csharpcode">
+      <pre class="alt">
+        <span class="lnum"> 1: </span>
+        <span class="kwrd">using</span> System;</pre>
+      <pre>
+        <span class="lnum"> 2: </span>
+        <span class="kwrd">using</span> System.Collections.Generic;</pre>
+      <pre class="alt">
+        <span class="lnum"> 3: </span>
+        <span class="kwrd">using</span> System.IO;</pre>
+      <pre>
+        <span class="lnum"> 4: </span>
+        <span class="kwrd">using</span> System.Linq;</pre>
+      <pre class="alt">
+        <span class="lnum"> 5: </span>
+        <span class="kwrd">using</span> System.Web;</pre>
+      <pre>
+        <span class="lnum"> 6: </span>
+        <span class="kwrd">using</span> Castle.Core;</pre>
+      <pre class="alt">
+        <span class="lnum"> 7: </span>
+        <span class="kwrd">using</span> Castle.MicroKernel;</pre>
+      <pre>
+        <span class="lnum"> 8: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 9: </span>
+        <span class="kwrd">namespace</span> dr.Castle.WebPathFacility</pre>
+      <pre>
+        <span class="lnum"> 10: </span>{</pre>
+      <pre class="alt">
+        <span class="lnum"> 11: </span>    <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 12: </span>    <span class="rem">/// Custom dependency resolver, that will inspect the parameters collection for the pathType attribute, and, if found, convert the dependency to </span></pre>
+      <pre class="alt">
+        <span class="lnum"> 13: </span>    <span class="rem">/// a absolute path based on the path type.</span></pre>
+      <pre>
+        <span class="lnum"> 14: </span>    <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 15: </span>    <span class="kwrd">class</span> PathParameterDependencyResolver : ISubDependencyResolver</pre>
+      <pre>
+        <span class="lnum"> 16: </span>    {</pre>
+      <pre class="alt">
+        <span class="lnum"> 17: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 18: </span>        <span class="rem">/// Holds the supported conversion operations.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 19: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 20: </span>        <span class="kwrd">private</span> <span class="kwrd">static</span> <span class="kwrd">readonly</span> Dictionary&lt;PathType,Func&lt;<span class="kwrd">string</span>, <span class="kwrd">string</span>&gt;&gt; conversions = <span class="kwrd">new</span> Dictionary&lt;PathType, Func&lt;<span class="kwrd">string</span>, <span class="kwrd">string</span>&gt;&gt;</pre>
+      <pre class="alt">
+        <span class="lnum"> 21: </span>                                                                                           {</pre>
+      <pre>
+        <span class="lnum"> 22: </span>                                                                                               {PathType.Absolute, path =&gt; path},</pre>
+      <pre class="alt">
+        <span class="lnum"> 23: </span>                                                                                               {PathType.Relative, path =&gt; Path.Combine(Environment.CurrentDirectory,path) },</pre>
+      <pre>
+        <span class="lnum"> 24: </span>                                                                                               {PathType.Virtual,  path =&gt; HttpContext.Current.Server.MapPath(path)}</pre>
+      <pre class="alt">
+        <span class="lnum"> 25: </span>                                                                                           };</pre>
+      <pre>
+        <span class="lnum"> 26: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 27: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 28: </span>        <span class="rem">/// Cache of the type path parameters.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 29: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 30: </span>        <span class="kwrd">private</span> <span class="kwrd">readonly</span> Dictionary&lt;<span class="kwrd">string</span>,PathParameter&gt; typePathParameters = <span class="kwrd">new</span> Dictionary&lt;<span class="kwrd">string</span>, PathParameter&gt;();</pre>
+      <pre class="alt">
+        <span class="lnum"> 31: </span> </pre>
+      <pre>
+        <span class="lnum"> 32: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 33: </span>        <span class="rem">/// Resolves the specified dependency.</span></pre>
+      <pre>
+        <span class="lnum"> 34: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 35: </span>        <span class="rem">/// &lt;param name="context"&gt;Creation context&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 36: </span>        <span class="rem">/// &lt;param name="contextHandlerResolver"&gt;Parent resolver&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 37: </span>        <span class="rem">/// &lt;param name="model"&gt;Model of the component that is requesting the dependency&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 38: </span>        <span class="rem">/// &lt;param name="dependency"&gt;The dependcy to satisfy&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 39: </span>        <span class="rem">/// &lt;returns&gt;&lt;c&gt;true&lt;/c&gt; if the dependency can be satsfied by this resolver, else &lt;c&gt;false&lt;/c&gt;.&lt;/returns&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 40: </span>        <span class="rem">/// &lt;returns&gt;The resolved dependency&lt;/returns&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 41: </span>        <span class="kwrd">public</span> <span class="kwrd">object</span> Resolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)</pre>
+      <pre>
+        <span class="lnum"> 42: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 43: </span>            PathParameter parameter = GetPathParameter(model, dependency);</pre>
+      <pre>
+        <span class="lnum"> 44: </span>            <span class="kwrd">if</span> (parameter == <span class="kwrd">null</span>) </pre>
+      <pre class="alt">
+        <span class="lnum"> 45: </span>                <span class="kwrd">throw</span> <span class="kwrd">new</span> ApplicationException(String.Format(<span class="str">"Cannot resolve dependency {0}"</span>, dependency));</pre>
+      <pre>
+        <span class="lnum"> 46: </span>            <span class="kwrd">if</span> (!conversions.ContainsKey(parameter.Type))</pre>
+      <pre class="alt">
+        <span class="lnum"> 47: </span>                <span class="kwrd">return</span> parameter.Value;     <span class="rem">// Unknown conversion</span></pre>
+      <pre>
+        <span class="lnum"> 48: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 49: </span>            <span class="kwrd">return</span> conversions[parameter.Type](parameter.Value);</pre>
+      <pre>
+        <span class="lnum"> 50: </span>        }</pre>
+      <pre class="alt">
+        <span class="lnum"> 51: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 52: </span>        <span class="rem">/// Determines whether this sub dependency resolver can resolve the specified dependency.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 53: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 54: </span>        <span class="rem">/// &lt;param name="context"&gt;Creation context&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 55: </span>        <span class="rem">/// &lt;param name="contextHandlerResolver"&gt;Parent resolver&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 56: </span>        <span class="rem">/// &lt;param name="model"&gt;Model of the component that is requesting the dependency&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 57: </span>        <span class="rem">/// &lt;param name="dependency"&gt;The dependcy to satisfy&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 58: </span>        <span class="rem">/// &lt;returns&gt;&lt;c&gt;true&lt;/c&gt; if the dependency can be satsfied by this resolver, else &lt;c&gt;false&lt;/c&gt;.&lt;/returns&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 59: </span>        <span class="kwrd">public</span> <span class="kwrd">bool</span> CanResolve(CreationContext context, ISubDependencyResolver contextHandlerResolver, ComponentModel model, DependencyModel dependency)</pre>
+      <pre>
+        <span class="lnum"> 60: </span>        {            </pre>
+      <pre class="alt">
+        <span class="lnum"> 61: </span>            <span class="kwrd">if</span> ( dependency.DependencyType == DependencyType.Parameter &amp;&amp; dependency.TargetType.Equals(<span class="kwrd">typeof</span>(<span class="kwrd">string</span>)) )</pre>
+      <pre>
+        <span class="lnum"> 62: </span>            {</pre>
+      <pre class="alt">
+        <span class="lnum"> 63: </span>                PathParameter parameter = GetPathParameter(model, dependency);</pre>
+      <pre>
+        <span class="lnum"> 64: </span>                <span class="kwrd">return</span> parameter != <span class="kwrd">null</span>;</pre>
+      <pre class="alt">
+        <span class="lnum"> 65: </span>            }</pre>
+      <pre>
+        <span class="lnum"> 66: </span>            <span class="kwrd">return</span> <span class="kwrd">false</span>;</pre>
+      <pre class="alt">
+        <span class="lnum"> 67: </span>        }</pre>
+      <pre>
+        <span class="lnum"> 68: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 69: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 70: </span>        <span class="rem">/// Finds the parameter by looking at the cache, then in the model configuration.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 71: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 72: </span>        <span class="rem">/// &lt;param name="model"&gt;&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 73: </span>        <span class="rem">/// &lt;param name="dependency"&gt;&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 74: </span>        <span class="rem">/// &lt;returns&gt;&lt;/returns&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 75: </span>        <span class="kwrd">private</span> PathParameter GetPathParameter(ComponentModel model, DependencyModel dependency)</pre>
+      <pre>
+        <span class="lnum"> 76: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 77: </span>            <span class="kwrd">if</span> (!typePathParameters.ContainsKey(model.Name))</pre>
+      <pre>
+        <span class="lnum"> 78: </span>                typePathParameters.Add(model.Name, GetPathParameterInternal(model, dependency));</pre>
+      <pre class="alt">
+        <span class="lnum"> 79: </span> </pre>
+      <pre>
+        <span class="lnum"> 80: </span>            <span class="kwrd">return</span> typePathParameters[model.Name];</pre>
+      <pre class="alt">
+        <span class="lnum"> 81: </span>        }</pre>
+      <pre>
+        <span class="lnum"> 82: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 83: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 84: </span>        <span class="rem">/// Finds the parameter by looking at the model configuration.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 85: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 86: </span>        <span class="rem">/// &lt;param name="model"&gt;&lt;/param&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 87: </span>        <span class="rem">/// &lt;param name="dependency"&gt;&lt;/param&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 88: </span>        <span class="rem">/// &lt;returns&gt;&lt;/returns&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 89: </span>        <span class="kwrd">private</span> PathParameter GetPathParameterInternal(ComponentModel model, DependencyModel dependency)</pre>
+      <pre>
+        <span class="lnum"> 90: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 91: </span>            var parametersContainer = model.Configuration.Children.SingleOrDefault(n =&gt; n.Name == <span class="str">"parameters"</span>);</pre>
+      <pre>
+        <span class="lnum"> 92: </span>            <span class="kwrd">if</span> ( parametersContainer != <span class="kwrd">null</span> )</pre>
+      <pre class="alt">
+        <span class="lnum"> 93: </span>            {</pre>
+      <pre>
+        <span class="lnum"> 94: </span>                var parameterNode = parametersContainer.Children.SingleOrDefault(n =&gt; n.Name == dependency.DependencyKey);</pre>
+      <pre class="alt">
+        <span class="lnum"> 95: </span>                <span class="kwrd">string</span> pathType = parameterNode.Attributes[<span class="str">"pathType"</span>];</pre>
+      <pre>
+        <span class="lnum"> 96: </span>                <span class="kwrd">if</span> (pathType != <span class="kwrd">null</span>)</pre>
+      <pre class="alt">
+        <span class="lnum"> 97: </span>                {</pre>
+      <pre>
+        <span class="lnum"> 98: </span>                    PathType type;</pre>
+      <pre class="alt">
+        <span class="lnum"> 99: </span>                    <span class="kwrd">if</span> (!Enum.TryParse(pathType, <span class="kwrd">true</span>, <span class="kwrd">out</span> type))</pre>
+      <pre>
+        <span class="lnum"> 100: </span>                        <span class="kwrd">throw</span> <span class="kwrd">new</span> ApplicationException(</pre>
+      <pre class="alt">
+        <span class="lnum"> 101: </span>                            String.Format(<span class="str">"Configuration error: Invalid pathType value '{0}'"</span>, pathType));</pre>
+      <pre>
+        <span class="lnum"> 102: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 103: </span>                    <span class="kwrd">return</span> <span class="kwrd">new</span> PathParameter {Type = type, Value = parameterNode.Value};</pre>
+      <pre>
+        <span class="lnum"> 104: </span>                }</pre>
+      <pre class="alt">
+        <span class="lnum"> 105: </span>            }</pre>
+      <pre>
+        <span class="lnum"> 106: </span>            <span class="kwrd">return</span> <span class="kwrd">null</span>;</pre>
+      <pre class="alt">
+        <span class="lnum"> 107: </span>        }</pre>
+      <pre>
+        <span class="lnum"> 108: </span> </pre>
+      <pre class="alt">
+        <span class="lnum"> 109: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 110: </span>        <span class="rem">/// Holds a path parameter</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 111: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 112: </span>        <span class="kwrd">private</span> <span class="kwrd">class</span> PathParameter</pre>
+      <pre class="alt">
+        <span class="lnum"> 113: </span>        {</pre>
+      <pre>
+        <span class="lnum"> 114: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 115: </span>            <span class="rem">/// Value as entered in config</span></pre>
+      <pre>
+        <span class="lnum"> 116: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 117: </span>            <span class="kwrd">public</span> <span class="kwrd">string</span> Value { get; set; }</pre>
+      <pre>
+        <span class="lnum"> 118: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 119: </span>            <span class="rem">/// Type of path.</span></pre>
+      <pre>
+        <span class="lnum"> 120: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 121: </span>            <span class="kwrd">public</span> PathType Type { get; set;}</pre>
+      <pre>
+        <span class="lnum"> 122: </span>        }</pre>
+      <pre class="alt">
+        <span class="lnum"> 123: </span> </pre>
+      <pre>
+        <span class="lnum"> 124: </span>        <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 125: </span>        <span class="rem">/// Defines the types of paths supported by &lt;see cref="PathParameterDependencyResolver" /&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 126: </span>        <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 127: </span>        <span class="kwrd">private</span> <span class="kwrd">enum</span> PathType</pre>
+      <pre>
+        <span class="lnum"> 128: </span>        {</pre>
+      <pre class="alt">
+        <span class="lnum"> 129: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 130: </span>            <span class="rem">/// The path is absolute (we will do nothing to it).</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 131: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 132: </span>            Absolute = 0,</pre>
+      <pre class="alt">
+        <span class="lnum"> 133: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 134: </span>            <span class="rem">/// The path is a virtual path to a web application resource.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 135: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 136: </span>            Virtual,</pre>
+      <pre class="alt">
+        <span class="lnum"> 137: </span>            <span class="rem">/// &lt;summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 138: </span>            <span class="rem">/// The path is relative to the current directory.</span></pre>
+      <pre class="alt">
+        <span class="lnum"> 139: </span>            <span class="rem">/// &lt;/summary&gt;</span></pre>
+      <pre>
+        <span class="lnum"> 140: </span>            Relative</pre>
+      <pre class="alt">
+        <span class="lnum"> 141: </span>        }</pre>
+      <pre>
+        <span class="lnum"> 142: </span>    }</pre>
+      <pre class="alt">
+        <span class="lnum"> 143: </span>}</pre>
+    </div>
+    <p>Now, I am finally able to use virtual paths in my configuration files, with a minimum of noise. Great. Please notice, that the "Relative" path type might not make sense for a real application (since it uses Environment.CurrentDirectory as base), but it can be really helpful in test configurations. The primary reason for creating this is pathType="virtual", which maps to <a title="MSDN HttpServerUtility.MapPath" href="http://msdn.microsoft.com/en-us/library/ms524632.aspx" target="_blank">Server.MapPath</a>.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>

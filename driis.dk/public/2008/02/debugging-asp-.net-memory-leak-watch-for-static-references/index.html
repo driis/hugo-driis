@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="da-DK">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="author" content="Dennis Riis">
+    <meta name="description" content="Dennis Riis&#39; personal site">
+    <meta name="keywords" content="blog,developer,personal">
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Debugging ASP .NET memory leak - watch for static references"/>
+<meta name="twitter:description" content="A while ago, I needed to debug an ASP .NET website, which was eating more and more memory the longer it was running, and never seemed to release the memory again. Even though the number of concurrent users was more or less constant, the memory usage seemed to be proportional to the total number of sessions since last application restart.
+What was happening here ? Could it be session-state elements that never got garbage collected ?"/>
+
+    <meta property="og:title" content="Debugging ASP .NET memory leak - watch for static references" />
+<meta property="og:description" content="A while ago, I needed to debug an ASP .NET website, which was eating more and more memory the longer it was running, and never seemed to release the memory again. Even though the number of concurrent users was more or less constant, the memory usage seemed to be proportional to the total number of sessions since last application restart.
+What was happening here ? Could it be session-state elements that never got garbage collected ?" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.driis.dk/2008/02/debugging-asp-.net-memory-leak-watch-for-static-references/" />
+<meta property="article:published_time" content="2008-02-10T21:42:14+00:00" />
+<meta property="article:modified_time" content="2008-02-10T21:42:14+00:00" />
+
+
+    
+      <base href="https://www.driis.dk/2008/02/debugging-asp-.net-memory-leak-watch-for-static-references/">
+    
+    <title>
+  Debugging ASP .NET memory leak - watch for static references · Dennis Riis Personal Site
+</title>
+
+    
+      <link rel="canonical" href="https://www.driis.dk/2008/02/debugging-asp-.net-memory-leak-watch-for-static-references/">
+    
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" integrity="sha384-KA6wR/X5RY4zFAHpv/CnoG2UW1uogYfdnP67Uv7eULvTveboZJg0qUpmJZb5VqzN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+    
+      
+      
+      <link rel="stylesheet" href="https://www.driis.dk/css/coder.min.a4f332213a21ce8eb521670c614470c58923aaaf385e2a73982c31dd7642decb.css" integrity="sha256-pPMyITohzo61IWcMYURwxYkjqq84XipzmCwx3XZC3ss=" crossorigin="anonymous" media="screen" />
+    
+
+    
+
+    
+
+    
+      <link rel="stylesheet" href="https://www.driis.dk/css/custom.css" />
+    
+
+    
+
+    
+
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://www.driis.dk/img/favicon-16x16.png" sizes="16x16">
+
+    <meta name="generator" content="Hugo 0.68.3" />
+  </head>
+
+  
+  
+  <body class="colorscheme-light">
+    <main class="wrapper">
+      <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.driis.dk/">
+      Dennis Riis Personal Site
+    </a>
+    
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/posts/">Blog</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.driis.dk/about/">About</a>
+          </li>
+        
+      
+      
+    </ul>
+    
+  </section>
+</nav>
+
+
+      <div class="content">
+        
+  <section class="container post">
+    <article>
+      <header>
+        <div class="post-title">
+          <h1 class="title">Debugging ASP .NET memory leak - watch for static references</h1>
+        </div>
+        <div class="post-meta">
+          <div class="date">
+            <span class="posted-on">
+              <i class="fas fa-calendar"></i>
+              <time datetime='2008-02-10T21:42:14Z'>
+                February 10, 2008
+              </time>
+            </span>
+            <span class="reading-time">
+              <i class="fas fa-clock"></i>
+              
+            </span>
+          </div>
+          
+          
+        </div>
+      </header>
+
+      <div>
+        
+        		<p>A while ago, I needed to debug an ASP .NET website, which was eating more and more memory the longer it was running, and never seemed to release the memory again. Even though the number of concurrent users was more or less constant, the memory usage seemed to be proportional to the total number of sessions since last application restart.</p>
+<p>What was happening here ? Could it be session-state elements that never got garbage collected ? To find out,&nbsp;I simulated load on a test version of the website, let the sessions time out and&nbsp;used <a title="WinDbg on Wikipedia" href="http://en.wikipedia.org/wiki/WinDbg" target="_blank">WinDbg</a>&nbsp;and the <a title="SOS.dll" href="http://msdn2.microsoft.com/en-us/library/bb190764(VS.80).aspx" target="_blank">Son of Strike dll extension</a>&nbsp;command "gcroot" to find out which objects was stll alive and why they could not be collected by the garbage collector. First I forced a few garbage collections by calling GC.Collect() to make sure that the garbage collector had actually run. </p>
+<p>I found out that some objects, that we keep in Session was rooted to an object array, which, it turned out, represented static references.<br />After some investigation, I found the problem in the code: A developer had created a static event, and had the objects in session subscribe to this event. This meant that the session objects could not be collected, since there were still reachable references to the objects.</p>
+<p>It turned out that the event did not need to be static, so the fix was rather easy to implement. The debugging of the issue, however, took some time.</p>
+<p>The morale of this is, that even though we have managed code with memory management, you should still keep an eye on memory usage during development. And with ASP .NET, you should be very careful with static references, since they could root your objects so that they can't be garbage collected. </p>
+<p>You should also be aware, that static objects are shared for all users. This should not come as a surprise, if you know just a bit about the ASP .NET process model, but it is my experience that it is easy to forget, even for experienced developers. Because the static objects are shared, you should treat them as such, and remember to use proper synchronization methods when accessing them..</p>
+<p>I might blog more in the future about this kind of issues.</p>
+
+      </div>
+
+
+      <footer>
+        
+
+
+        
+        
+        
+      </footer>
+    </article>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script type="text/javascript" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/startup.js" id="MathJax-script"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'], ['\\(', '\\)']
+        ],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  </section>
+
+      </div>
+
+      
+  <footer class="footer">
+    <section class="container">
+      
+        <p>Personal Site of Dennis Riis - views & expressions my own</p>
+      
+      
+        ©
+        
+        2020
+         Dennis Riis 
+      
+      
+         · 
+         <a href="https://gohugo.io/">Hugo</a> & <a href="https://github.com/luizdepra/hugo-coder/">Coder</a>.
+      
+      
+    </section>
+  </footer>
+
+    </main>
+
+    
+
+    
+
+  </body>
+
+</html>
