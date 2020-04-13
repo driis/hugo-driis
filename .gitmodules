@@ -4,3 +4,6 @@
 [submodule "driis.dk/themes/hugo-coder"]
 	path = driis.dk/themes/hugo-coder
 	url = https://github.com/luizdepra/hugo-coder.git
+[submodule "driis.dk/public"]
+	path = driis.dk/public
+	url = https://github.com/driis/driis.github.io

@@ -1,4 +1,3 @@
-baseurl = "https://www.driis.dk"
 title = "Dennis Riis Personal Site"
 theme = "hugo-coder"
 languagecode = "da-DK"
@@ -10,8 +9,6 @@ canonifyurls = true
 pygmentsstyle = "bw"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
-
-# disqusShortname = "yourdiscussshortname"
 
 [permalinks]
     posts = "/:year/:month/:slug/"
