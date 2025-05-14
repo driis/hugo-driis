@@ -1,9 +1,9 @@
 title = "Dennis Riis Personal Site"
 theme = "hugo-coder"
-languagecode = "da-DK"
-defaultcontentlanguage = "da-DK"
+languagecode = "da"
+defaultcontentlanguage = "da"
 
-paginate = 20
+pagination.pagerSize = 20
 canonifyurls = true
 
 pygmentsstyle = "bw"
